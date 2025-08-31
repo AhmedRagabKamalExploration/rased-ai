@@ -1,7 +1,7 @@
 // src/managers/ConfigManager.ts
 import { BaseModule } from '@/modules/BaseModule';
 
-export interface SDKConfig {
+export interface WebSDKConfig {
     apiKey: string;
     modules: (new () => BaseModule)[];
     sessionTimeout?: number; // in minutes
@@ -17,7 +17,7 @@ const DEFAULT_CONFIG = {
 
 export class ConfigManager {
     private static instance: ConfigManager;
-    private _config!: SDKConfig;
+    private _config!: WebSDKConfig;
 
     private constructor() {}
 
@@ -28,21 +28,18 @@ export class ConfigManager {
         return ConfigManager.instance;
     }
 
-    public get config(): SDKConfig {
+    public get config(): WebSDKConfig {
         return this._config;
     }
 
-    public configure(userConfig: Partial<SDKConfig>): void {
+    public configure(userConfig: Partial<WebSDKConfig>): void {
         const mergedConfig = { ...DEFAULT_CONFIG, ...userConfig };
 
         if (!mergedConfig.apiKey) {
             throw new Error("[SDK] Configuration Error: `apiKey` is mandatory.");
         }
-        if (!mergedConfig.modules || mergedConfig.modules.length === 0) {
-            throw new Error("[SDK] Configuration Error: `modules` array must be provided and contain at least one module.");
-        }
 
-        this._config = mergedConfig as SDKConfig;
+        this._config = mergedConfig as WebSDKConfig;
         console.log("[SDK] Configuration validated successfully.");
     }
 }

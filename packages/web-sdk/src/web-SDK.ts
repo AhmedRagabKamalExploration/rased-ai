@@ -1,8 +1,7 @@
-// src/SDK.ts
-import { Collector, ModuleManager, SessionManager, IdentityManager, ConfigManager, type SDKConfig } from '@/managers';
-
-export class SDK {
-    private static instance: SDK;
+import { Collector, ModuleManager, SessionManager, IdentityManager, ConfigManager, type WebSDKConfig } from '@/managers';
+import { featureModules } from '@/modules';
+export class WebSDK {
+    private static instance: WebSDK;
     private isStarted: boolean = false;
     private configManager = ConfigManager.getInstance();
     private identityManager = IdentityManager.getInstance();
@@ -12,16 +11,16 @@ export class SDK {
 
     private constructor() {}
 
-    public static getInstance(): SDK {
-        if (!SDK.instance) {
-            SDK.instance = new SDK();
+    public static getInstance(): WebSDK {
+        if (!WebSDK.instance) {
+            WebSDK.instance = new WebSDK();
         }
-        return SDK.instance;
+        return WebSDK.instance;
     }
 
-    public async start(userConfig: Partial<SDKConfig>): Promise<void> {
+    public async start(userConfig: Partial<WebSDKConfig>): Promise<void> {
         if (this.isStarted) {
-            console.warn("[SDK] Start called more than once.");
+            console.warn("[WebSDK] Start called more than once.");
             return;
         }
 
@@ -39,13 +38,13 @@ export class SDK {
             });
             this.collector.start();
 
-            this.moduleManager.registerAndInit(config.modules);
+            this.moduleManager.registerAndInit(featureModules);
 
             this.isStarted = true;
-            console.log("[SDK] Started Successfully.");
+            console.log("[WebSDK] Started Successfully.");
 
         } catch (error) {
-            console.error("[SDK] Failed to start:", error);
+            console.error("[WebSDK] Failed to start:", error);
             this.shutdown(); // Clean up on failure
         }
     }
@@ -56,6 +55,6 @@ export class SDK {
         this.collector.stop();
         this.sessionManager.end();
         this.isStarted = false;
-        console.log("[SDK] Shutdown complete.");
+        console.log("[WebSDK] Shutdown complete.");
     }
 }
