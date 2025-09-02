@@ -24,6 +24,8 @@ export class Collector {
         this.config = config;
     }
     
+
+
     public add(eventData: any): void {
         this.queue.push(eventData);
         if (this.queue.length >= this.config.batchSize) {

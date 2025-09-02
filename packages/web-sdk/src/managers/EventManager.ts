@@ -21,7 +21,7 @@ export class EventManager {
         const enrichedEvent = {
             eventId: crypto.randomUUID(),
             eventType: eventType,
-            deviceId: this.identityManager.getDeviceId(),
+            deviceId: this.identityManager.getDeviceId(), 
             sessionId: this.sessionManager.getSessionId(),
             timestamp: new Date().toISOString(),
             payload: payload,

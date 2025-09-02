@@ -1,8 +1,5 @@
+import { ClickTracker } from "./ClickTracker";
+import { TrueIdModule } from "./TrueId";
+import { SkipToContentModule } from "./SkipToContentModule";
 
-import { ClickTracker } from './ClickTracker'
-import { TrueIdModule } from './TrueId'
-
-export const featureModules = [
-  ClickTracker,
-  TrueIdModule,
-]
+export const featureModules = [ClickTracker, TrueIdModule, SkipToContentModule];

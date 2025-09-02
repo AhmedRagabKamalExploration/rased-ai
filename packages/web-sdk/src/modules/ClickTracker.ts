@@ -8,9 +8,10 @@ export class ClickTracker extends BaseModule {
 
     private handleClick(event: Event): void {
         const target = event.target as HTMLElement;
-        this.eventManager.dispatch('ui.click', {
+        this.eventManager.dispatch('click', {
             tag: target.tagName,
             id: target.id,
+            class: target.className,
         });
     }
 }

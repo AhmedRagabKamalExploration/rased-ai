@@ -1,7 +1,7 @@
 import { BaseModule } from './BaseModule';
 
-// We use a specific, consistent image URL. The browser will cache this.
-const FINGERPRINT_IMAGE_URL = 'https://placehold.co/32x32/EBF2F7/7F9CF5?text=ID';
+// Use the specific 8x8 pixel image for fingerprinting. The browser will cache this.
+const FINGERPRINT_IMAGE_URL = 'https://i.postimg.cc/VvvhX1wp/pixil-frame-0.png';
 
 export class TrueIdModule extends BaseModule {
     /**
@@ -22,16 +22,19 @@ export class TrueIdModule extends BaseModule {
             // 1. Fetch the image. This will be served from cache on subsequent visits.
             const image = await this.loadImage(FINGERPRINT_IMAGE_URL);
 
-            // 2. Render the image and other graphics to a canvas.
-            const dataUrl = this.renderToCanvas(image);
+            // 2. Generate a representative string by processing the color of each rendered pixel.
+            const fingerprintString = this.generateFingerprintFromPixels(image);
 
-            // 3. Hash the resulting pixel data to create the TrueId.
-            const trueId = await this.hash(dataUrl);
+            // 3. Hash the resulting fingerprint string to create the full hash.
+            const fullHash = await this.hash(fingerprintString);
+
+            // 4. Derive a more sophisticated short ID from the full hash.
+            const trueId = this.deriveShortIdFromHash(fullHash);
             
             console.log(`[SDK] TrueIdModule: Generated TrueId: ${trueId}`);
             
-            // 4. Dispatch the result.
-            this.eventManager.dispatch('identity.trueId', { trueId });
+            // 5. Dispatch the result, including both the short ID and the full hash.
+            this.eventManager.dispatch('identity.trueId', { trueId, fullHash });
 
         } catch (error) {
             // This ensures that even if this module fails, the SDK doesn't crash.
@@ -53,30 +56,71 @@ export class TrueIdModule extends BaseModule {
     }
 
     /**
-     * Renders the image and other unique graphics to a hidden canvas and returns its data URL.
+     * Renders an image to a hidden canvas and creates a unique fingerprint string
+     * by deriving a character from the color value of each pixel.
      */
-    private renderToCanvas(image: HTMLImageElement): string {
+    private generateFingerprintFromPixels(image: HTMLImageElement): string {
         const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
         if (!ctx) {
             throw new Error("Canvas 2D context is not available.");
         }
 
-        // Render a combination of things to increase uniqueness (entropy).
-        // Different systems render fonts, shapes, and images slightly differently.
+        // Draw the image to the canvas. This is the core of the fingerprinting process.
         ctx.drawImage(image, 0, 0);
-        ctx.font = "16px 'Arial'";
-        ctx.fillStyle = 'rgb(100, 125, 150)';
-        ctx.fillText('websdk-v1.0', 4, 58);
-        ctx.beginPath();
-        ctx.arc(40, 40, 10, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.stroke();
 
-        return canvas.toDataURL();
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        const pixelCount = imageData.length / 4;
+        const fingerprintChars: string[] = [];
+
+        // Iterate over each pixel to generate a character based on its color.
+        for (let i = 0; i < pixelCount; i++) {
+            const r = imageData[i * 4];
+            const g = imageData[i * 4 + 1];
+            const b = imageData[i * 4 + 2];
+
+            // Calculate a value based on the color's perceived brightness (luminance).
+            // This is more stable and representative than using raw RGBA values.
+            const luminance = Math.floor(r * 0.299 + g * 0.587 + b * 0.114);
+
+            // Convert the luminance value into a single hexadecimal character (0-f).
+            const char = (luminance % 16).toString(16);
+            fingerprintChars.push(char);
+        }
+
+        // Join the characters to form the final pre-hash fingerprint string.
+        return fingerprintChars.join('');
+    }
+    
+    /**
+     * Derives a stable 8-character ID from a 64-character hash by processing it in chunks.
+     */
+    private deriveShortIdFromHash(hash: string): string {
+        if (hash.length !== 64) {
+            // Fallback for unexpected hash lengths, though this should not happen with SHA-256.
+            return hash.substring(0, 8);
+        }
+    
+        const shortIdChars: string[] = [];
+        // Split the 64-char hash into 8 chunks of 8 characters each.
+        for (let i = 0; i < 8; i++) {
+            const chunk = hash.substring(i * 8, (i + 1) * 8);
+            
+            // Use a bitwise XOR operation on the integer value of each character in the chunk.
+            // This combines the chunk into a single representative number (0-15).
+            let xorValue = 0;
+            for (let j = 0; j < chunk.length; j++) {
+                xorValue ^= parseInt(chunk[j], 16);
+            }
+            
+            // Convert the resulting number back to a hexadecimal character.
+            shortIdChars.push(xorValue.toString(16));
+        }
+    
+        return shortIdChars.join('');
     }
 
     /**
