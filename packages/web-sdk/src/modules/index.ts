@@ -1,5 +1,9 @@
-import { ClickTracker } from "./ClickTracker";
 import { TrueIdModule } from "./TrueId";
 import { SkipToContentModule } from "./SkipToContentModule";
+import { MouseBehaviourModule } from "./MouseModule";
 
-export const featureModules = [ClickTracker, TrueIdModule, SkipToContentModule];
+export const featureModules = [
+  TrueIdModule,
+  SkipToContentModule,
+  MouseBehaviourModule,
+];

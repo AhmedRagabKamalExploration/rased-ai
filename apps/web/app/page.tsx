@@ -6,9 +6,25 @@ import { useEffect, useRef } from "react";
 export default function HomePage() {
   const webSDk = useRef(WebSDK.getInstance());
   useEffect(() => {
-    webSDk.current.start({
-      apiKey: "sk-1234567890abcdef1234567890abcdef",
-    });
+    const sdk = webSDk.current; // Capture ref value to avoid linting warning
+
+    const initializeSDK = async () => {
+      try {
+        // Start the SDK immediately - DOM is already loaded in React
+        await sdk.start({
+          apiKey: "sk-1234567890abcdef1234567890abcdef",
+        });
+        console.log("WebSDK started successfully");
+      } catch (error) {
+        console.error("Failed to start WebSDK:", error);
+      }
+    };
+
+    initializeSDK();
+
+    return () => {
+      sdk.shutdown();
+    };
   }, []);
 
   return (

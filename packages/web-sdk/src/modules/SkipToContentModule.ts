@@ -3,6 +3,7 @@ import { BaseModule } from "./BaseModule";
 const SKIP_LINK_KEYWORDS_REGEX = /skip|main|content|navigation/i;
 
 export class SkipToContentModule extends BaseModule {
+  public readonly moduleName = "skipToContent";
   /**
    * Initializes the SkipToContent feature detection process.
    */
@@ -13,10 +14,14 @@ export class SkipToContentModule extends BaseModule {
       const detectionResult = this.detectSkipLink();
 
       console.log(`[SDK] SkipToContentModule: Detection complete.`);
-      this.eventManager.dispatch("skipToContent", detectionResult);
+      this.eventManager.dispatch(
+        this.moduleName,
+        "skipToContent",
+        detectionResult
+      );
     } catch (error) {
       console.error("[SDK] SkipToContentModule: Detection failed.", error);
-      this.eventManager.dispatch("skipToContent", {
+      this.eventManager.dispatch(this.moduleName, "skipToContent", {
         error: "Failed to run skip-to-content feature detection.",
       });
     }
