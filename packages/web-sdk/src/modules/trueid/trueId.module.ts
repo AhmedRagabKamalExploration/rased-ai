@@ -1,4 +1,4 @@
-import { BaseModule } from "./BaseModule";
+import { BaseModule } from "@/modules/BaseModule";
 
 // Use the specific 8x8 pixel image for fingerprinting. The browser will cache this.
 const FINGERPRINT_IMAGE_URL = "https://i.postimg.cc/VvvhX1wp/pixil-frame-0.png";
@@ -9,7 +9,7 @@ export class TrueIdModule extends BaseModule {
    * Initializes the TrueId generation process.
    */
   public init(): void {
-    console.log("[SDK] TrueIdModule: Initializing...");
+    console.log("[SDK] TrueId: Initializing...");
     this.generateTrueId().catch((error) => {
       console.error("[SDK] TrueIdModule: Failed to generate TrueId.", error);
       this.eventManager.dispatch(this.moduleName, "trueId", {

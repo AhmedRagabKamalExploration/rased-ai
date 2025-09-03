@@ -1,9 +1,8 @@
-import { Collector, SessionManager } from "@/managers";
+import { Collector } from "@/managers";
 
 export class EventManager {
   private static instance: EventManager;
   private collector = Collector.getInstance();
-  private sessionManager = SessionManager.getInstance();
 
   private constructor() {}
 
@@ -22,10 +21,9 @@ export class EventManager {
     const enrichedEvent = {
       eventId: crypto.randomUUID(),
       moduleName,
-      eventType: eventType,
-      sessionId: this.sessionManager.getSessionId(),
+      eventType,
       timestamp: new Date().toISOString(),
-      payload: payload,
+      payload,
     };
     this.collector.add(enrichedEvent);
   }

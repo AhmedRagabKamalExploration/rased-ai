@@ -1,4 +1,4 @@
-import { BaseModule } from "./BaseModule";
+import { BaseModule } from "@/modules/BaseModule";
 
 // Configuration for the module
 const TRAJECTORY_MAX_POINTS = 100; // Max number of points for action analysis
@@ -18,7 +18,7 @@ export class MouseBehaviourModule extends BaseModule {
   ];
 
   public init(): void {
-    console.log("[SDK] MouseBehaviourModule (Advanced): Initializing...");
+    console.log("[SDK] mouse: Initializing...");
     this.mouseEvents.forEach((eventType) => {
       this.addListener(document, eventType, this.handleMouseEvent.bind(this), {
         capture: true,

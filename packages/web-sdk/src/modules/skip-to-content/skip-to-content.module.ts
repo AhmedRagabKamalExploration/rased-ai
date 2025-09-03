@@ -1,4 +1,4 @@
-import { BaseModule } from "./BaseModule";
+import { BaseModule } from "@/modules/BaseModule";
 
 const SKIP_LINK_KEYWORDS_REGEX = /skip|main|content|navigation/i;
 
@@ -8,7 +8,7 @@ export class SkipToContentModule extends BaseModule {
    * Initializes the SkipToContent feature detection process.
    */
   public init(): void {
-    console.log("[SDK] SkipToContentModule: Initializing feature detection...");
+    console.log("[SDK] skipToContent: Initializing...");
     try {
       // The detection is synchronous, so no need for async/await.
       const detectionResult = this.detectSkipLink();
