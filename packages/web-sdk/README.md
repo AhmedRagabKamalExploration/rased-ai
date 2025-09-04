@@ -8,7 +8,7 @@
 
 ## Clean KeyStroke
 
-## IP (Location) (WebSokcet) (MaxMind DB in backend)
+## IP (Location) (WebRTC => google web sever) (MaxMind DB in backend) // Enrich location from backend
 
 ## Screen
 

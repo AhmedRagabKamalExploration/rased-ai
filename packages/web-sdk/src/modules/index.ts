@@ -11,6 +11,7 @@ import { DeviceOrientationModule } from "./device-orientation/device-orientation
 import { KeyboardModule } from "./keyboard/keyboard.module";
 import { TimezoneAndLanguageModule } from "./timezone-language/timezone-language.module";
 import { TouchModule } from "./touch/touch.module";
+import { WebRTCIPModule } from "./webrtc/webrtc.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -26,4 +27,5 @@ export const featureModules = [
   KeyboardModule,
   TimezoneAndLanguageModule,
   TouchModule,
+  WebRTCIPModule,
 ];

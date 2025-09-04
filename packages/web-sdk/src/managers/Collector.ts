@@ -69,6 +69,7 @@ export class Collector {
     const finalBatch = {
       deviceId: this.identityManager.getDeviceId(),
       sessionId: this.sessionManager.getSessionId(),
+      batchId: crypto.randomUUID(),
       batchTimestamp: new Date().toISOString(),
       modules: modulesData,
     };
