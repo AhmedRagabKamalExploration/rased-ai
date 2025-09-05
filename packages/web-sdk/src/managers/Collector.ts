@@ -1,5 +1,5 @@
 import { IdentityManager } from "./IdentityManager";
-import { SessionManager } from "./SessionManager";
+import { APIManager } from "./APIManager";
 
 interface CollectorConfig {
   batchSize: number;
@@ -8,15 +8,11 @@ interface CollectorConfig {
 
 export class Collector {
   private static instance: Collector;
-  // The queue is now a Map to group events by module name.
-  private queue: Map<string, any[]> = new Map();
-  private totalEvents: number = 0;
+  private queue = new Map<string, any[]>();
   private config!: CollectorConfig;
   private timer: ReturnType<typeof setTimeout> | null = null;
-
-  // Get instances of other managers to access global IDs
   private identityManager = IdentityManager.getInstance();
-  private sessionManager = SessionManager.getInstance();
+  private apiManager = APIManager.getInstance();
 
   private constructor() {}
 
@@ -31,19 +27,21 @@ export class Collector {
     this.config = config;
   }
 
-  /**
-   * Adds a new event to the queue, grouped by its module name.
-   * Triggers a flush if the total number of events reaches the batch size.
-   */
-  public add(eventData: { moduleName: string; [key: string]: any }): void {
-    const { moduleName } = eventData;
+  public add(eventData: any): void {
+    const moduleName = eventData.module;
     if (!this.queue.has(moduleName)) {
       this.queue.set(moduleName, []);
     }
-    this.queue.get(moduleName)!.push(eventData);
-    this.totalEvents++;
+    // We remove the module name from the individual event
+    // because it's now the key for the group.
+    delete eventData.module;
+    this.queue.get(moduleName)?.push(eventData);
 
-    if (this.totalEvents >= this.config.batchSize) {
+    const totalEvents = Array.from(this.queue.values()).reduce(
+      (sum, events) => sum + events.length,
+      0
+    );
+    if (totalEvents >= this.config.batchSize) {
       this.flush();
     }
   }
@@ -54,35 +52,27 @@ export class Collector {
 
   public stop(): void {
     if (this.timer) clearInterval(this.timer);
-    this.flush(); // Final flush on stop
+    this.flush(); // Perform a final flush on shutdown
   }
 
-  /**
-   * Flushes all queued events, grouped by module, in a structured batch payload.
-   */
   private flush(): void {
     if (this.queue.size === 0) return;
 
-    const modulesData = Object.fromEntries(this.queue);
+    const modulesPayload = Object.fromEntries(this.queue);
+    this.queue.clear();
 
-    // --- NEW: Create a structured batch with top-level IDs ---
-    const finalBatch = {
+    const batch = {
       deviceId: this.identityManager.getDeviceId(),
-      sessionId: this.sessionManager.getSessionId(),
       batchId: crypto.randomUUID(),
       batchTimestamp: new Date().toISOString(),
-      modules: modulesData,
+      modules: modulesPayload,
     };
 
     console.log(
-      `[SDK] Flushing ${this.totalEvents} events in a structured batch...`
+      `[SDK] Flushing batch with ${Object.keys(modulesPayload).length} modules...`
     );
-    // In a real implementation, you would send this finalBatch object.
-    // navigator.sendBeacon('/api/collect', JSON.stringify(finalBatch));
-    console.log(finalBatch);
 
-    // Clear the queue and reset the count after flushing.
-    this.queue.clear();
-    this.totalEvents = 0;
+    // Delegate the actual network request to the APIManager
+    this.apiManager.sendEvents(batch);
   }
 }

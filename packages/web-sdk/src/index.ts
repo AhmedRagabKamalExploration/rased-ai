@@ -1,5 +1,4 @@
 // Main SDK export
-export { WebSDK } from './web-SDK';
+export { WebSDK } from "./web-SDK";
 
-export type { WebSDKConfig } from './managers/ConfigManager';
-
+export type { SdkInitConfig } from "./managers/ConfigManager";

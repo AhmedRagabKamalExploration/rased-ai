@@ -1,23 +1,21 @@
-// src/managers/ConfigManager.ts
-import { BaseModule } from "@/modules/BaseModule";
-
-export interface WebSDKConfig {
-  apiKey: string;
-  modules: (new () => BaseModule)[];
-  sessionTimeout?: number; // in minutes
-  batchSize?: number;
-  flushInterval?: number; // in milliseconds
+export interface SdkInitConfig {
+  baseApiUrl: string;
+  organizationId: string;
+  sessionId: string;
+  transactionId: string;
+  trigger: string; // The raw JSON string for the trigger
 }
 
-const DEFAULT_CONFIG = {
-  sessionTimeout: 15, // 15 minutes
-  batchSize: 100,
-  flushInterval: 5000, // 5 seconds
-};
+// A parsed version of the trigger config for internal use
+interface TriggerConfig {
+  selector: string;
+  eventName: string;
+}
 
 export class ConfigManager {
   private static instance: ConfigManager;
-  private _config!: WebSDKConfig;
+  private _config!: SdkInitConfig;
+  private _triggerConfig: TriggerConfig | null = null;
 
   private constructor() {}
 
@@ -28,18 +26,62 @@ export class ConfigManager {
     return ConfigManager.instance;
   }
 
-  public get config(): WebSDKConfig {
+  public get config(): SdkInitConfig {
     return this._config;
   }
 
-  public configure(userConfig: Partial<WebSDKConfig>): void {
-    const mergedConfig = { ...DEFAULT_CONFIG, ...userConfig };
+  public configure(userConfig: SdkInitConfig): void {
+    // Presence validation for all required fields
+    if (!userConfig.baseApiUrl)
+      throw new Error("[SDK] Config Error: `baseApiUrl` is mandatory.");
+    if (!userConfig.organizationId)
+      throw new Error("[SDK] Config Error: `organizationId` is mandatory.");
+    if (!userConfig.sessionId)
+      throw new Error("[SDK] Config Error: `sessionId` is mandatory.");
+    if (!userConfig.transactionId)
+      throw new Error("[SDK] Config Error: `transactionId` is mandatory.");
+    if (!userConfig.trigger)
+      throw new Error("[SDK] Config Error: `trigger` is mandatory.");
 
-    if (!mergedConfig.apiKey) {
-      throw new Error("[SDK] Configuration Error: `apiKey` is mandatory.");
+    this._config = userConfig;
+    this.parseTriggerConfig();
+    console.log("[SDK] Client configuration validated successfully.");
+  }
+
+  private parseTriggerConfig(): void {
+    try {
+      // Safely parse the JSON string from the config
+      const parsed = JSON.parse(this._config.trigger);
+      // Example format: {"#trigger":"submit"}
+      const selector = Object.keys(parsed)[0];
+      const eventName = parsed[selector];
+      if (selector && eventName) {
+        this._triggerConfig = { selector, eventName };
+      }
+    } catch (error) {
+      console.error("[SDK] Failed to parse trigger configuration.", error);
+      this._triggerConfig = null;
     }
+  }
 
-    this._config = mergedConfig as WebSDKConfig;
-    console.log("[SDK] Configuration validated successfully.");
+  public attachTrigger(finalFlushCallback: () => void): void {
+    if (!this._triggerConfig) return;
+
+    const { selector, eventName } = this._triggerConfig;
+    const triggerElement = document.querySelector(selector);
+
+    if (triggerElement) {
+      console.log(
+        `[SDK] Attaching final flush trigger ('${eventName}') to element:`,
+        triggerElement
+      );
+      triggerElement.addEventListener(eventName, finalFlushCallback, {
+        once: true,
+      });
+    } else {
+      console.warn(
+        `[SDK] Config Warning: The element for trigger selector "${selector}" was not found.`
+      );
+    }
   }
 }

@@ -22,7 +22,11 @@ export default function HomePage() {
       try {
         // Start the SDK immediately - DOM is already loaded in React
         await sdk.start({
-          apiKey: "sk-1234567890abcdef1234567890abcdef",
+          baseApiUrl: "https://api.rased.ai",
+          organizationId: "org-1234567890",
+          sessionId: "ssn-1234567890",
+          transactionId: "txn-1234567890",
+          trigger: '{"#trigger":"submit"}',
         });
         console.log("WebSDK started successfully");
       } catch (error) {
