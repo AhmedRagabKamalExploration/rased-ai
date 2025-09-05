@@ -29,7 +29,7 @@ export class APIManager {
     const handshakeString = `${organizationId}${transactionId}${sessionId}${deviceId}`;
     const handshakeHash = await this.hash(handshakeString);
 
-    const tokenUrl = `${baseApiUrl}/in/web-event/v3/token/${handshakeHash}`;
+    const tokenUrl = `${baseApiUrl}/v1/token/${handshakeHash}`;
 
     console.log(`[SDK] APIManager: Requesting session token.`);
 
@@ -72,7 +72,7 @@ export class APIManager {
     }
 
     const { baseApiUrl, organizationId } = this.configManager.config;
-    const eventsUrl = `${baseApiUrl}/in/web-event/v3/event`;
+    const eventsUrl = `${baseApiUrl}/v1/event`;
 
     try {
       const response = await fetch(eventsUrl, {
