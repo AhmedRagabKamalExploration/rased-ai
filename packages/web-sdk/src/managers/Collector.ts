@@ -28,13 +28,13 @@ export class Collector {
   }
 
   public add(eventData: any): void {
-    const moduleName = eventData.module;
+    const moduleName = eventData.moduleName;
     if (!this.queue.has(moduleName)) {
       this.queue.set(moduleName, []);
     }
     // We remove the module name from the individual event
     // because it's now the key for the group.
-    delete eventData.module;
+    delete eventData.moduleName;
     this.queue.get(moduleName)?.push(eventData);
 
     const totalEvents = Array.from(this.queue.values()).reduce(
@@ -71,6 +71,8 @@ export class Collector {
     console.log(
       `[SDK] Flushing batch with ${Object.keys(modulesPayload).length} modules...`
     );
+
+    console.log({ batch });
 
     // Delegate the actual network request to the APIManager
     this.apiManager.sendEvents(batch);

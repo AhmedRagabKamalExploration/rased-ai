@@ -8,10 +8,9 @@ export class CryptoUtils {
   public static generateHandshakeHash(
     organizationId: string,
     transactionId: string,
-    sessionId: string,
-    deviceId: string
+    sessionId: string
   ): string {
-    const handshakeString = `${organizationId}${transactionId}${sessionId}${deviceId}`;
+    const handshakeString = `${organizationId}${transactionId}${sessionId}`;
     return createHash("sha256").update(handshakeString).digest("hex");
   }
 
@@ -23,14 +22,12 @@ export class CryptoUtils {
     providedHash: string,
     organizationId: string,
     transactionId: string,
-    sessionId: string,
-    deviceId: string
+    sessionId: string
   ): boolean {
     const expectedHash = this.generateHandshakeHash(
       organizationId,
       transactionId,
-      sessionId,
-      deviceId
+      sessionId
     );
     return providedHash === expectedHash;
   }

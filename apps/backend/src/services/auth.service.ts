@@ -18,13 +18,8 @@ export class AuthService {
   ): Promise<boolean> {
     if (!origin) return false;
 
-    try {
-      const url = new URL(origin);
-      const domain = url.hostname;
-      return await this.organizationRepo.validateDomain(organizationId, domain);
-    } catch {
-      return false;
-    }
+    // Pass the full origin URL to the repository for proper parsing
+    return await this.organizationRepo.validateDomain(organizationId, origin);
   }
 
   /**
@@ -49,8 +44,7 @@ export class AuthService {
         handshakeHash,
         organizationId,
         transactionId,
-        sessionId,
-        deviceId
+        sessionId
       );
 
       if (!isValidHash) {

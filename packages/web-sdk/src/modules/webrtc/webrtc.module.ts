@@ -138,7 +138,7 @@ export class WebRTCIPModule extends BaseModule {
       }
     });
 
-    this.eventManager.dispatch(this.moduleName, "context.webrtc.ips", {
+    this.eventManager.dispatch(this.moduleName, "webrtc", {
       supported: true,
       timedOut, // Add a flag to indicate if the results are partial
       candidates: {

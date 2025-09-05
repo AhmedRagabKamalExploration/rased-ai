@@ -24,64 +24,26 @@ export class TokenController {
       const sessionId = c.get("sessionId");
       const transactionId = c.get("transactionId");
 
-      // 3. Extract device ID from web-SDK's current implementation
-      // Note: This needs to match the exact hash generation from APIManager
-      // Current SDK uses: organizationId + transactionId + sessionId + deviceId
-
-      // For now, we'll need to derive deviceId from the hash since it's not in headers
-      // In production, you might want to require deviceId as a header too
-
-      // Let's validate the hash by trying different approaches
-      // First, let's assume the hash might be from just the three parameters
-      const simpleHash = CryptoUtils.generateHandshakeHash(
+      // 3. Validate handshake hash (now without deviceId)
+      const isValidHash = CryptoUtils.validateHandshakeHash(
+        handshakeHash,
         organizationId,
         transactionId,
-        sessionId,
-        "" // Empty device ID to test
+        sessionId
       );
 
-      let deviceId = "";
-      let isValidHash = false;
-
-      // If simple hash doesn't match, we need to find the device ID
-      if (handshakeHash !== simpleHash) {
-        // Extract device ID from User-Agent or create one
-        const userAgent = c.req.header("user-agent") || "";
-        const fingerprint = c.req.header("x-fingerprint") || "";
-
-        // Generate a consistent device ID from available headers
-        deviceId = CryptoUtils.generateHandshakeHash(
-          userAgent,
-          fingerprint,
-          "",
-          ""
-        );
-
-        // Validate with generated device ID
-        isValidHash = CryptoUtils.validateHandshakeHash(
-          handshakeHash,
-          organizationId,
-          transactionId,
-          sessionId,
-          deviceId
-        );
-      } else {
-        isValidHash = true;
-      }
-
-      // If still not valid, try to extract device ID from a header (if provided)
       if (!isValidHash) {
-        deviceId = c.req.header("x-device-id") || "";
-        isValidHash = CryptoUtils.validateHandshakeHash(
-          handshakeHash,
-          organizationId,
-          transactionId,
-          sessionId,
-          deviceId
+        console.warn(
+          `[Token] Hash validation failed for org: ${organizationId}`
         );
+        return c.json({ error: "Invalid handshake hash" }, 401);
       }
 
-      // 4. Validate and generate token
+      // 4. Generate device ID from request headers for session tracking
+      const userAgent = c.req.header("user-agent") || "";
+      const deviceId = CryptoUtils.generateHandshakeHash(userAgent, "", "", "");
+
+      // 5. Validate and generate token
       const result = await this.authService.validateHandshakeAndGenerateToken(
         handshakeHash,
         organizationId,
@@ -91,11 +53,11 @@ export class TokenController {
       );
 
       if (!result.success) {
-        console.warn(`[Token] Hash validation failed: ${result.error}`);
+        console.warn(`[Token] Token generation failed: ${result.error}`);
         return c.json({ error: result.error }, 401);
       }
 
-      // 5. Return session token in header (no body response)
+      // 6. Return session token in header (no body response)
       c.header("x-session-token", result.sessionToken!);
 
       console.log(

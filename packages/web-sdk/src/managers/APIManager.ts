@@ -23,13 +23,12 @@ export class APIManager {
   public async initialize(): Promise<void> {
     const { baseApiUrl, organizationId, sessionId, transactionId } =
       this.configManager.config;
-    const deviceId = this.identityManager.getDeviceId();
 
     // The handshake hash is a unique fingerprint for this specific transaction request.
-    const handshakeString = `${organizationId}${transactionId}${sessionId}${deviceId}`;
+    const handshakeString = `${organizationId}${transactionId}${sessionId}`;
     const handshakeHash = await this.hash(handshakeString);
 
-    const tokenUrl = `${baseApiUrl}/v1/token/${handshakeHash}`;
+    const tokenUrl = `${baseApiUrl}/token/${handshakeHash}`;
 
     console.log(`[SDK] APIManager: Requesting session token.`);
 
@@ -72,7 +71,7 @@ export class APIManager {
     }
 
     const { baseApiUrl, organizationId } = this.configManager.config;
-    const eventsUrl = `${baseApiUrl}/v1/event`;
+    const eventsUrl = `${baseApiUrl}/event`;
 
     try {
       const response = await fetch(eventsUrl, {

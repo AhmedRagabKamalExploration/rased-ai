@@ -162,24 +162,26 @@ export const validateTokenHeaders = async (c: Context, next: Next) => {
  * CORS middleware for handling cross-origin requests.
  */
 export const corsMiddleware = async (c: Context, next: Next) => {
+  // Allow all origins for development and API-first services
+  const origin = c.req.header("origin") || "*";
+
+  // Set the specific allowed origin for your local development setup
+  c.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  c.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  c.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, x-organisationid, x-sessionid, x-transactionid, x-session-token"
+  );
+  c.header("Access-Control-Expose-Headers", "x-session-token");
+  c.header("Access-Control-Max-Age", "86400");
+  c.header("Access-Control-Allow-Credentials", "true");
+
   // Handle preflight requests
   if (c.req.method === "OPTIONS") {
-    c.header("Access-Control-Allow-Origin", c.req.header("origin") || "*");
-    c.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    c.header(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, x-organisationid, x-sessionid, x-transactionid, x-session-token"
-    );
-    c.header("Access-Control-Expose-Headers", "x-session-token");
-    c.header("Access-Control-Max-Age", "86400");
-    return new Response("", { status: 204 });
+    return c.text("", 204);
   }
 
   await next();
-
-  // Add CORS headers to all responses
-  c.header("Access-Control-Allow-Origin", c.req.header("origin") || "*");
-  c.header("Access-Control-Expose-Headers", "x-session-token");
 };
 
 /**

@@ -42,7 +42,7 @@ export class WebGLModule extends BaseModule {
     // 3. Hash the static parameters for a combined signature.
     const paramsHash = await this.hash(JSON.stringify(staticParams));
 
-    this.eventManager.dispatch(this.moduleName, "fingerprint.webgl", {
+    this.eventManager.dispatch(this.moduleName, "webgl", {
       supported: true,
       renderHash,
       paramsHash,
