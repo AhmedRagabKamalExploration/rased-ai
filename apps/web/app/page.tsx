@@ -60,6 +60,11 @@ export default function App() {
     };
   }, []);
 
+  const handleSubmitLogin = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("Login form submitted");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 font-sans p-4">
       <a
@@ -73,6 +78,38 @@ export default function App() {
         Skip to content
       </a>
       <h1>WebSDK Demo</h1>
+      <h2>Login Form</h2>
+      <form
+        onSubmit={handleSubmitLogin}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+
+          gap: "10px",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <label htmlFor="email">Email</label>
+          <input
+            style={{ width: "50%", height: "30px" }}
+            type="email"
+            id="email"
+            placeholder="Email"
+          />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <label htmlFor="password">Password</label>
+          <input
+            style={{ width: "50%", height: "30px" }}
+            type="password"
+            id="password"
+            placeholder="Password"
+          />
+        </div>
+        <button style={{ width: "100px" }} type="submit">
+          Login
+        </button>
+      </form>
     </div>
   );
 }
