@@ -15,6 +15,7 @@ export interface Metadata {
 }
 
 export class MetadataManager {
+  private static instance: MetadataManager;
   private readonly tenantId: string;
   private readonly transactionId: string;
   private readonly sessionId: string;
@@ -27,7 +28,7 @@ export class MetadataManager {
   private messageCounter: number;
   private deviceSessionType: "INITIATING" | "REJOINING";
 
-  constructor(initialData: {
+  private constructor(initialData: {
     tenantId: string;
     transactionId: string;
     sessionId: string;
@@ -47,6 +48,24 @@ export class MetadataManager {
     this.deviceSessionId = crypto.randomUUID();
     this.messageCounter = 0;
     this.deviceSessionType = "INITIATING";
+  }
+
+  public static getInstance(initialData?: {
+    tenantId: string;
+    transactionId: string;
+    sessionId: string;
+    sdkVersion: string;
+    origin: string;
+  }): MetadataManager {
+    if (!MetadataManager.instance) {
+      if (!initialData) {
+        throw new Error(
+          "MetadataManager requires initial data for first initialization"
+        );
+      }
+      MetadataManager.instance = new MetadataManager(initialData);
+    }
+    return MetadataManager.instance;
   }
 
   public getCollectionEventId(): string {

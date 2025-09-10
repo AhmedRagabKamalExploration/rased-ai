@@ -1,7 +1,12 @@
+// In a real implementation, you would use imported cryptographic libraries
+// like 'pako' for compression and 'crypto-js' for encryption.
+// For now, we'll implement basic encryption without external dependencies.
+
+// The EncryptionLayer interface, as you proposed
 export interface EncryptionLayer {
   name: string;
-  encrypt(data: any): string;
-  decrypt(encryptedData: string): any;
+  encrypt(data: string): string;
+  decrypt(encryptedData: string): string;
 }
 
 export class EncryptionManager {
@@ -27,59 +32,132 @@ export class EncryptionManager {
   }
 
   private initializeEncryptionLayers(): void {
-    // Primary encryption layer (AES-like)
+    // Primary encryption layer (XOR encryption)
     this.encryptionLayers.push({
       name: "primary",
-      encrypt: (data: any) => this.primaryEncrypt(data),
+      encrypt: (data: string) => this.primaryEncrypt(data),
       decrypt: (encryptedData: string) => this.primaryDecrypt(encryptedData),
     });
 
-    // Secondary encryption layer (Base64 + XOR)
+    // Secondary encryption layer (Base64 + obfuscation)
     this.encryptionLayers.push({
       name: "secondary",
-      encrypt: (data: any) => this.secondaryEncrypt(data),
-      decrypt: (encryptedData: string) => this.secondaryDecrypt(encryptedData),
+      encrypt: (data: string) => {
+        const encoded = btoa(data);
+        let obfuscated = "";
+        for (let i = 0; i < encoded.length; i++) {
+          const charCode = encoded.charCodeAt(i) + (i % 10);
+          obfuscated += String.fromCharCode(charCode);
+        }
+        return obfuscated;
+      },
+      decrypt: (encryptedData: string) => {
+        let deobfuscated = "";
+        for (let i = 0; i < encryptedData.length; i++) {
+          const charCode = encryptedData.charCodeAt(i) - (i % 10);
+          deobfuscated += String.fromCharCode(charCode);
+        }
+        return atob(deobfuscated);
+      },
     });
 
-    // Tertiary encryption layer (Custom algorithm)
+    // Tertiary encryption layer (Custom character shifting)
     this.encryptionLayers.push({
       name: "tertiary",
-      encrypt: (data: any) => this.tertiaryEncrypt(data),
-      decrypt: (encryptedData: string) => this.tertiaryDecrypt(encryptedData),
+      encrypt: (data: string) => {
+        let encrypted = "";
+        for (let i = 0; i < data.length; i++) {
+          const charCode = data.charCodeAt(i);
+          const shift = (i * 7 + 13) % 26;
+          if (charCode >= 65 && charCode <= 90) {
+            encrypted += String.fromCharCode(
+              ((charCode - 65 + shift) % 26) + 65
+            );
+          } else if (charCode >= 97 && charCode <= 122) {
+            encrypted += String.fromCharCode(
+              ((charCode - 97 + shift) % 26) + 97
+            );
+          } else {
+            encrypted += data[i];
+          }
+        }
+        return encrypted;
+      },
+      decrypt: (encryptedData: string) => {
+        let decrypted = "";
+        for (let i = 0; i < encryptedData.length; i++) {
+          const charCode = encryptedData.charCodeAt(i);
+          const shift = (i * 7 + 13) % 26;
+          if (charCode >= 65 && charCode <= 90) {
+            decrypted += String.fromCharCode(
+              ((charCode - 65 - shift + 26) % 26) + 65
+            );
+          } else if (charCode >= 97 && charCode <= 122) {
+            decrypted += String.fromCharCode(
+              ((charCode - 97 - shift + 26) % 26) + 97
+            );
+          } else {
+            decrypted += encryptedData[i];
+          }
+        }
+        return decrypted;
+      },
     });
 
-    // Quaternary encryption layer (Final obfuscation)
+    // Quaternary encryption layer (Hex obfuscation)
     this.encryptionLayers.push({
       name: "quaternary",
-      encrypt: (data: any) => this.quaternaryEncrypt(data),
-      decrypt: (encryptedData: string) => this.quaternaryDecrypt(encryptedData),
+      encrypt: (data: string) => {
+        let obfuscated = "";
+        for (let i = 0; i < data.length; i++) {
+          const charCode = data.charCodeAt(i);
+          const obfuscatedChar = charCode ^ 0xaa; // XOR with 0xAA
+          obfuscated += obfuscatedChar.toString(16).padStart(2, "0");
+        }
+        return obfuscated;
+      },
+      decrypt: (encryptedData: string) => {
+        let decrypted = "";
+        for (let i = 0; i < encryptedData.length; i += 2) {
+          const hex = encryptedData.substr(i, 2);
+          const charCode = parseInt(hex, 16) ^ 0xaa;
+          decrypted += String.fromCharCode(charCode);
+        }
+        return decrypted;
+      },
     });
   }
 
   public encrypt(data: any): string {
-    let encryptedData = JSON.stringify(data);
+    let serializedData = JSON.stringify(data);
 
     // Apply all encryption layers in sequence
+    let encryptedData = serializedData;
     for (const layer of this.encryptionLayers) {
       encryptedData = layer.encrypt(encryptedData);
     }
 
-    return encryptedData;
+    // Final Base64 encoding for safe transmission
+    return btoa(encryptedData);
   }
 
-  public decrypt(encryptedData: string): any {
-    let decryptedData = encryptedData;
-
-    // Apply decryption layers in reverse order
-    for (let i = this.encryptionLayers.length - 1; i >= 0; i--) {
-      decryptedData = this.encryptionLayers[i].decrypt(decryptedData);
-    }
+  public decrypt(encryptedPayload: string): any {
+    let decryptedData = "";
 
     try {
+      // First, decode from Base64
+      const decodedData = atob(encryptedPayload);
+      decryptedData = decodedData;
+
+      // Then, apply decryption layers in reverse order
+      for (let i = this.encryptionLayers.length - 1; i >= 0; i--) {
+        decryptedData = this.encryptionLayers[i].decrypt(decryptedData);
+      }
+
       return JSON.parse(decryptedData);
     } catch (error) {
-      console.error("Failed to parse decrypted data:", error);
-      return null;
+      console.error("[EncryptionManager] Decryption failed:", error);
+      throw new Error("Payload decryption failed.");
     }
   }
 
@@ -108,94 +186,6 @@ export class EncryptionManager {
       return decrypted;
     } catch (error) {
       console.error("Primary decryption failed:", error);
-      return encryptedData;
-    }
-  }
-
-  private secondaryEncrypt(data: string): string {
-    // Base64 encoding with additional obfuscation
-    const encoded = btoa(data);
-    let obfuscated = "";
-    for (let i = 0; i < encoded.length; i++) {
-      const charCode = encoded.charCodeAt(i) + (i % 10);
-      obfuscated += String.fromCharCode(charCode);
-    }
-    return obfuscated;
-  }
-
-  private secondaryDecrypt(encryptedData: string): string {
-    try {
-      let deobfuscated = "";
-      for (let i = 0; i < encryptedData.length; i++) {
-        const charCode = encryptedData.charCodeAt(i) - (i % 10);
-        deobfuscated += String.fromCharCode(charCode);
-      }
-      return atob(deobfuscated);
-    } catch (error) {
-      console.error("Secondary decryption failed:", error);
-      return encryptedData;
-    }
-  }
-
-  private tertiaryEncrypt(data: string): string {
-    // Custom character shifting algorithm
-    let encrypted = "";
-    for (let i = 0; i < data.length; i++) {
-      const charCode = data.charCodeAt(i);
-      const shift = (i * 7 + 13) % 26;
-      if (charCode >= 65 && charCode <= 90) {
-        encrypted += String.fromCharCode(((charCode - 65 + shift) % 26) + 65);
-      } else if (charCode >= 97 && charCode <= 122) {
-        encrypted += String.fromCharCode(((charCode - 97 + shift) % 26) + 97);
-      } else {
-        encrypted += data[i];
-      }
-    }
-    return encrypted;
-  }
-
-  private tertiaryDecrypt(encryptedData: string): string {
-    let decrypted = "";
-    for (let i = 0; i < encryptedData.length; i++) {
-      const charCode = encryptedData.charCodeAt(i);
-      const shift = (i * 7 + 13) % 26;
-      if (charCode >= 65 && charCode <= 90) {
-        decrypted += String.fromCharCode(
-          ((charCode - 65 - shift + 26) % 26) + 65
-        );
-      } else if (charCode >= 97 && charCode <= 122) {
-        decrypted += String.fromCharCode(
-          ((charCode - 97 - shift + 26) % 26) + 97
-        );
-      } else {
-        decrypted += encryptedData[i];
-      }
-    }
-    return decrypted;
-  }
-
-  private quaternaryEncrypt(data: string): string {
-    // Final obfuscation layer
-    let obfuscated = "";
-    for (let i = 0; i < data.length; i++) {
-      const charCode = data.charCodeAt(i);
-      const obfuscatedChar = charCode ^ 0xaa; // XOR with 0xAA
-      obfuscated += obfuscatedChar.toString(16).padStart(2, "0");
-    }
-    return obfuscated;
-  }
-
-  private quaternaryDecrypt(encryptedData: string): string {
-    try {
-      let decrypted = "";
-      for (let i = 0; i < encryptedData.length; i += 2) {
-        const hex = encryptedData.substr(i, 2);
-        const charCode = parseInt(hex, 16) ^ 0xaa;
-        decrypted += String.fromCharCode(charCode);
-      }
-      return decrypted;
-    } catch (error) {
-      console.error("Quaternary decryption failed:", error);
       return encryptedData;
     }
   }

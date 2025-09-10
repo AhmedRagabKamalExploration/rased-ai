@@ -12,6 +12,8 @@ import { KeyboardModule } from "./keyboard/keyboard.module";
 import { TimezoneAndLanguageModule } from "./timezone-language/timezone-language.module";
 import { TouchModule } from "./touch/touch.module";
 import { WebRTCIPModule } from "./webrtc/webrtc.module";
+import { AdblockModule } from "./adblock/adblock.module";
+import { PerformanceModule } from "./performance/performance.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -28,4 +30,6 @@ export const featureModules = [
   TimezoneAndLanguageModule,
   TouchModule,
   WebRTCIPModule,
+  AdblockModule,
+  PerformanceModule,
 ];

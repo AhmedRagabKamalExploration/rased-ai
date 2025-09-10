@@ -1,12 +1,20 @@
 export class TokenManager {
+  private static instance: TokenManager;
   private nonceToken: string | null = null;
   private readonly cryptographicKey: string;
 
-  constructor() {
+  private constructor() {
     // In a real-world scenario, this key would be securely fetched or generated.
     // For this example, we'll use a hardcoded value.
     this.cryptographicKey =
       "a-secure-random-cryptographic-key-for-hashing-purposes";
+  }
+
+  public static getInstance(): TokenManager {
+    if (!TokenManager.instance) {
+      TokenManager.instance = new TokenManager();
+    }
+    return TokenManager.instance;
   }
 
   public getNonce(): string | null {
