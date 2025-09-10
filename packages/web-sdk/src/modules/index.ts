@@ -15,6 +15,8 @@ import { WebRTCIPModule } from "./webrtc/webrtc.module";
 import { AdblockModule } from "./adblock/adblock.module";
 import { PerformanceModule } from "./performance/performance.module";
 import { MathModule } from "./math/math.module";
+import { BrowserTypeModule } from "./browser-type/browser-type.module";
+import { DeviceModule } from "./device/device.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -34,4 +36,6 @@ export const featureModules = [
   AdblockModule,
   PerformanceModule,
   MathModule,
+  BrowserTypeModule,
+  DeviceModule,
 ];
