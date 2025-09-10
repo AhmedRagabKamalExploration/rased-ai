@@ -25,6 +25,7 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "terser": "^5.43.1",
     "typescript": "~5.8.3",
     "vite": "^7.1.3",
@@ -39,5 +40,8 @@
   "repository": {
     "type": "git",
     "url": "your-repo-url"
+  },
+  "dependencies": {
+    "crypto-js": "^4.2.0"
   }
 }

@@ -14,6 +14,7 @@ import { TouchModule } from "./touch/touch.module";
 import { WebRTCIPModule } from "./webrtc/webrtc.module";
 import { AdblockModule } from "./adblock/adblock.module";
 import { PerformanceModule } from "./performance/performance.module";
+import { MathModule } from "./math/math.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -32,4 +33,5 @@ export const featureModules = [
   WebRTCIPModule,
   AdblockModule,
   PerformanceModule,
+  MathModule,
 ];

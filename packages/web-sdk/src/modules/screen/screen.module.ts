@@ -22,39 +22,28 @@ export class ScreenModule extends BaseModule {
 
   /**
    * Gathers a comprehensive set of properties from the `screen` and `window` objects.
+   * Matches the exact structure from the obfuscated code.
    * @returns An object containing the screen fingerprint data.
    */
   private collectScreenData(): object {
     const isScreenAvailable = typeof screen !== "undefined";
 
     return {
-      // --- Direct Screen Properties ---
-      width: isScreenAvailable ? screen.width : -1,
-      height: isScreenAvailable ? screen.height : -1,
-      availWidth: isScreenAvailable ? screen.availWidth : -1,
-      availHeight: isScreenAvailable ? screen.availHeight : -1,
-      colorDepth: isScreenAvailable ? screen.colorDepth : -1,
-      pixelDepth: isScreenAvailable ? screen.pixelDepth : -1,
-      orientation:
-        isScreenAvailable && screen.orientation
-          ? screen.orientation.type
-          : "N/A",
-
-      // --- Direct Window Properties ---
-      innerWidth: window.innerWidth,
-      innerHeight: window.innerHeight,
-      outerWidth: window.outerWidth,
-      outerHeight: window.outerHeight,
-      devicePixelRatio: window.devicePixelRatio,
-
-      // --- Derived Properties for Deeper Insight ---
-      // Reveals OS taskbar size
-      taskbarHeight: isScreenAvailable
-        ? screen.height - screen.availHeight
-        : -1,
-      // Reveals browser toolbar/border size
-      browserChromeWidth: window.outerWidth - window.innerWidth,
-      browserChromeHeight: window.outerHeight - window.innerHeight,
+      // Screen properties matching content.md structure
+      devicePixelRatio: window.devicePixelRatio || 1,
+      availHeight: isScreenAvailable ? screen.availHeight : 0,
+      availLeft: isScreenAvailable ? (screen as any).availLeft || 0 : 0,
+      availTop: isScreenAvailable ? (screen as any).availTop || 0 : 0,
+      availWidth: isScreenAvailable ? screen.availWidth : 0,
+      colorDepth: isScreenAvailable ? screen.colorDepth : 24,
+      height: isScreenAvailable ? screen.height : 0,
+      innerHeight: window.innerHeight || 0,
+      innerWidth: window.innerWidth || 0,
+      left: isScreenAvailable ? (screen as any).left || 0 : 0,
+      pixelDepth: isScreenAvailable ? screen.pixelDepth : 24,
+      top: isScreenAvailable ? (screen as any).top || 0 : 0,
+      width: isScreenAvailable ? screen.width : 0,
+      timestamp: Date.now(),
     };
   }
 }

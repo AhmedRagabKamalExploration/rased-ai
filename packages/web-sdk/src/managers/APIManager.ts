@@ -1,12 +1,9 @@
 import { ConfigManager } from "./ConfigManager";
-import { TokenManager } from "./TokenManager";
-import { EncryptionManager } from "./EncryptionManager";
 
 export class APIManager {
   private static instance: APIManager;
   private configManager = ConfigManager.getInstance();
-  private tokenManager = TokenManager.getInstance();
-  private encryptionManager = EncryptionManager.getInstance();
+
   private sessionToken: string | null = null;
 
   private constructor() {}
