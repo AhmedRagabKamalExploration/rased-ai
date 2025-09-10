@@ -17,6 +17,8 @@ import { PerformanceModule } from "./performance/performance.module";
 import { MathModule } from "./math/math.module";
 import { BrowserTypeModule } from "./browser-type/browser-type.module";
 import { DeviceModule } from "./device/device.module";
+import { PluginsModule } from "./plugins/plugins.module";
+import { TimezoneModule } from "./timezone/timezone.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -38,4 +40,6 @@ export const featureModules = [
   MathModule,
   BrowserTypeModule,
   DeviceModule,
+  PluginsModule,
+  TimezoneModule,
 ];
