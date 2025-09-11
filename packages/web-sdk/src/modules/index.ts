@@ -25,6 +25,7 @@ import { ClientHintsModule } from "./client-hints/client-hints.module";
 import { BrowserSpeechModule } from "./browser-speech/browser-speech.module";
 import { BindingModule } from "./binding/binding.module";
 import { PrivateBrowserModule } from "./private-browser/private-browser.module";
+import { ReferrerUrlModule } from "./referrer-url/referrer-url.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -54,4 +55,5 @@ export const featureModules = [
   BrowserSpeechModule,
   BindingModule,
   PrivateBrowserModule,
+  ReferrerUrlModule,
 ];
