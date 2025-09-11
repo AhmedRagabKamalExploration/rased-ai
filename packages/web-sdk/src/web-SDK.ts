@@ -47,7 +47,7 @@ export class WebSDK {
       // 4. With a valid token, initialize all other services.
       const config = this.configManager.config;
       this.sessionManager.start(config.sessionId, 15); // Using a default 15 min timeout
-      this.collector.configure({ batchSize: 100, flushInterval: 5000 });
+      this.collector.configure({ batchSize: 100, flushInterval: 1000 });
       this.collector.start();
       this.moduleManager.registerAndInit(featureModules);
       this.configManager.attachTrigger(this.shutdown.bind(this));

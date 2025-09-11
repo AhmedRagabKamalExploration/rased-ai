@@ -19,6 +19,7 @@ import { BrowserTypeModule } from "./browser-type/browser-type.module";
 import { DeviceModule } from "./device/device.module";
 import { PluginsModule } from "./plugins/plugins.module";
 import { TimezoneModule } from "./timezone/timezone.module";
+import { MalwareModule } from "./malware/malware.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -42,4 +43,5 @@ export const featureModules = [
   DeviceModule,
   PluginsModule,
   TimezoneModule,
+  MalwareModule,
 ];
