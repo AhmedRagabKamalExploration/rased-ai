@@ -20,6 +20,8 @@ import { DeviceModule } from "./device/device.module";
 import { PluginsModule } from "./plugins/plugins.module";
 import { TimezoneModule } from "./timezone/timezone.module";
 import { MalwareModule } from "./malware/malware.module";
+import { MediaModule } from "./media/media.module";
+import { ClientHintsModule } from "./client-hints/client-hints.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -44,4 +46,6 @@ export const featureModules = [
   PluginsModule,
   TimezoneModule,
   MalwareModule,
+  MediaModule,
+  ClientHintsModule,
 ];
