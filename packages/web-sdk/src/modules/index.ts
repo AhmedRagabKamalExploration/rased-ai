@@ -27,6 +27,7 @@ import { BindingModule } from "./binding/binding.module";
 import { PrivateBrowserModule } from "./private-browser/private-browser.module";
 import { ReferrerUrlModule } from "./referrer-url/referrer-url.module";
 import { BrowserFeaturesModule } from "./browser-features/browser-features.module";
+import { TeamViewerFontModule } from "./team-viewer-font/team-viewer-font.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -58,4 +59,5 @@ export const featureModules = [
   PrivateBrowserModule,
   ReferrerUrlModule,
   BrowserFeaturesModule,
+  TeamViewerFontModule,
 ];
