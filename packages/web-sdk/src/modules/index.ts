@@ -22,6 +22,7 @@ import { TimezoneModule } from "./timezone/timezone.module";
 import { MalwareModule } from "./malware/malware.module";
 import { MediaModule } from "./media/media.module";
 import { ClientHintsModule } from "./client-hints/client-hints.module";
+import { BrowserSpeechModule } from "./browser-speech/browser-speech.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -48,4 +49,5 @@ export const featureModules = [
   MalwareModule,
   MediaModule,
   ClientHintsModule,
+  BrowserSpeechModule,
 ];
