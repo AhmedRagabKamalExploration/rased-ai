@@ -23,6 +23,7 @@ import { MalwareModule } from "./malware/malware.module";
 import { MediaModule } from "./media/media.module";
 import { ClientHintsModule } from "./client-hints/client-hints.module";
 import { BrowserSpeechModule } from "./browser-speech/browser-speech.module";
+import { BindingModule } from "./binding/binding.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -50,4 +51,5 @@ export const featureModules = [
   MediaModule,
   ClientHintsModule,
   BrowserSpeechModule,
+  BindingModule,
 ];
