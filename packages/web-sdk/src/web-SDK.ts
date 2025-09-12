@@ -6,6 +6,7 @@ import {
   ConfigManager,
   APIManager,
   type SdkInitConfig,
+  MetadataManager,
 } from "@/managers";
 import { featureModules } from "@/modules";
 
@@ -18,6 +19,7 @@ export class WebSDK {
   private moduleManager = ModuleManager.getInstance();
   private collector = Collector.getInstance();
   private apiManager = APIManager.getInstance();
+  private metadataManager = MetadataManager.getInstance();
 
   private constructor() {}
 
@@ -46,6 +48,10 @@ export class WebSDK {
 
       // 4. With a valid token, initialize all other services.
       const config = this.configManager.config;
+
+      // 5. Initialize MetadataManager to track the session.
+      this.metadataManager.updateMetadata(userConfig);
+
       this.sessionManager.start(config.sessionId, 15); // Using a default 15 min timeout
       this.collector.configure({ batchSize: 100, flushInterval: 1000 });
       this.collector.start();

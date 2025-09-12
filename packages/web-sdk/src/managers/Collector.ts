@@ -1,5 +1,5 @@
-import { IdentityManager } from "./IdentityManager";
 import { APIManager } from "./APIManager";
+import { MetadataManager } from "./MetadataManager";
 
 interface CollectorConfig {
   batchSize: number;
@@ -11,8 +11,8 @@ export class Collector {
   private queue = new Map<string, any[]>();
   private config!: CollectorConfig;
   private timer: ReturnType<typeof setTimeout> | null = null;
-  private identityManager = IdentityManager.getInstance();
   private apiManager = APIManager.getInstance();
+  private metadataManager = MetadataManager.getInstance();
 
   private constructor() {}
 
@@ -60,12 +60,11 @@ export class Collector {
 
     const modulesPayload = Object.fromEntries(this.queue);
     this.queue.clear();
+    const metadata = this.metadataManager.createMetadata();
 
     const batch = {
-      deviceId: this.identityManager.getDeviceId(),
-      batchId: crypto.randomUUID(),
-      batchTimestamp: new Date().toISOString(),
-      modules: modulesPayload,
+      content: modulesPayload,
+      metadata,
     };
 
     console.log(

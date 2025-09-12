@@ -1,7 +1,10 @@
+import packageJson from "../../package.json";
+import type { SdkInitConfig } from "./ConfigManager";
+import { IdentityManager } from "./IdentityManager";
 export interface Metadata {
   messageType: "BATCH" | "INITIATING";
   collectionEventId: string;
-  tenantId: string;
+  organizationId: string;
   transactionId: string;
   sessionId: string;
   deviceSessionType: string;
@@ -16,54 +19,33 @@ export interface Metadata {
 
 export class MetadataManager {
   private static instance: MetadataManager;
-  private readonly tenantId: string;
-  private readonly transactionId: string;
-  private readonly sessionId: string;
+  private identityManager = IdentityManager.getInstance();
+  private organizationId = "";
+  private transactionId = "";
+  private sessionId = "";
   private readonly sdkVersion: string;
   private readonly origin: string;
   private readonly channels: string;
   private readonly pageType: string[];
   private collectionEventId: string;
-  private deviceSessionId: string;
   private messageCounter: number;
   private deviceSessionType: "INITIATING" | "REJOINING";
 
-  private constructor(initialData: {
-    tenantId: string;
-    transactionId: string;
-    sessionId: string;
-    sdkVersion: string;
-    origin: string;
-  }) {
-    this.tenantId = initialData.tenantId;
-    this.transactionId = initialData.transactionId;
-    this.sessionId = initialData.sessionId;
-    this.sdkVersion = initialData.sdkVersion;
-    this.origin = initialData.origin;
+  private constructor() {
+    this.sdkVersion = packageJson.version;
+    this.origin = window.location.origin;
     this.channels = "WEB"; // Hardcoded as per the example
     this.pageType = ["WEB_STANDARD"]; // Hardcoded as per the example
 
     // These properties are dynamic and will be managed internally
     this.collectionEventId = crypto.randomUUID();
-    this.deviceSessionId = crypto.randomUUID();
     this.messageCounter = 0;
     this.deviceSessionType = "INITIATING";
   }
 
-  public static getInstance(initialData?: {
-    tenantId: string;
-    transactionId: string;
-    sessionId: string;
-    sdkVersion: string;
-    origin: string;
-  }): MetadataManager {
+  public static getInstance(): MetadataManager {
     if (!MetadataManager.instance) {
-      if (!initialData) {
-        throw new Error(
-          "MetadataManager requires initial data for first initialization"
-        );
-      }
-      MetadataManager.instance = new MetadataManager(initialData);
+      MetadataManager.instance = new MetadataManager();
     }
     return MetadataManager.instance;
   }
@@ -76,18 +58,42 @@ export class MetadataManager {
     return this.messageCounter++;
   }
 
+  public updateMetadata({
+    organizationId,
+    transactionId,
+    sessionId,
+  }: Pick<
+    SdkInitConfig,
+    "organizationId" | "transactionId" | "sessionId"
+  >): void {
+    this.organizationId = organizationId;
+    this.transactionId = transactionId;
+    this.sessionId = sessionId;
+  }
+
   // Method to create the full metadata object for a payload
-  public createMetadata(transactionEventPageId: string | null): Metadata {
+  public createMetadata(
+    transactionEventPageId: string | null = null
+  ): Metadata {
+    const deviceSessionId = this.identityManager.getDeviceId();
+
+    // Log a warning if device ID is still uninitialized
+    if (deviceSessionId === "uninitialized") {
+      console.warn(
+        "[SDK] MetadataManager: Device ID is uninitialized. IdentityManager may not be properly initialized."
+      );
+    }
+
     return {
       messageType: "BATCH",
       collectionEventId: this.collectionEventId,
-      tenantId: this.tenantId,
+      organizationId: this.organizationId,
       transactionId: this.transactionId,
       sessionId: this.sessionId,
       deviceSessionType: this.deviceSessionType,
-      deviceSessionId: this.deviceSessionId,
+      deviceSessionId, // Get device ID dynamically
       messageId: this.getNextMessageId(),
-      transactionEventPageId: transactionEventPageId,
+      transactionEventPageId,
       sdkVersion: this.sdkVersion,
       origin: this.origin,
       channels: this.channels,

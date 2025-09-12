@@ -40,10 +40,6 @@ export class BrowserFeaturesModule extends BaseModule {
     };
   }
 
-  private checkFeature(feature: string): 0 | 1 | null {
-    return typeof (window as any)[feature] !== "undefined" ? 1 : 0;
-  }
-
   private checkStorageFeatures(): (0 | 1 | null)[] {
     return [
       typeof localStorage !== "undefined" ? 1 : 0,
@@ -177,7 +173,6 @@ export class BrowserFeaturesModule extends BaseModule {
   }
 
   private checkGraphicsFeatures(): (0 | 1 | null)[] {
-    const c = document.createElement("canvas");
     return [
       "CanvasRenderingContext2D" in window ? 1 : 0,
       "CanvasGradient" in window ? 1 : 0,
@@ -228,7 +223,6 @@ export class BrowserFeaturesModule extends BaseModule {
     const d = document.createElement("div").style;
     const s = document.createElement("style");
     document.head.appendChild(s);
-    const ss = s.sheet as CSSStyleSheet;
 
     const testFeatures: string[] = [
       "flex",
