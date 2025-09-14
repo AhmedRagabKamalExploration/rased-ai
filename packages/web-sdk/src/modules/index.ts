@@ -30,6 +30,7 @@ import { BrowserFeaturesModule } from "./browser-features/browser-features.modul
 import { TeamViewerFontModule } from "./team-viewer-font/team-viewer-font.module";
 import { ScreenOrientationModule } from "./screen-orientation/screen-orientation.module";
 import { PageMonitoringModule } from "./page-monitoring/page-monitoring.module";
+import { VisibilityChangeModule } from "./visibility-change/visibility-change.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -64,4 +65,5 @@ export const featureModules = [
   TeamViewerFontModule,
   ScreenOrientationModule,
   PageMonitoringModule,
+  VisibilityChangeModule,
 ];
