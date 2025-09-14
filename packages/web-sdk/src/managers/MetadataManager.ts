@@ -33,7 +33,7 @@ export class MetadataManager {
 
   private constructor() {
     this.sdkVersion = packageJson.version;
-    this.origin = window.location.origin;
+    this.origin = typeof window !== "undefined" ? window.location.origin : "";
     this.channels = "WEB"; // Hardcoded as per the example
     this.pageType = ["WEB_STANDARD"]; // Hardcoded as per the example
 
