@@ -34,6 +34,7 @@ import { VisibilityChangeModule } from "./visibility-change/visibility-change.mo
 import { GesturesModule } from "./gestures/gestures.module";
 import { FrameRateModule } from "./frame-rate/frame-rate.module";
 import { PointerModule } from "./pointer/pointer.module";
+import { CanvasModule } from "./canvas/canvas.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -72,4 +73,5 @@ export const featureModules = [
   GesturesModule,
   FrameRateModule,
   PointerModule,
+  CanvasModule,
 ];
