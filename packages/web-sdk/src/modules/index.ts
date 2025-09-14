@@ -35,6 +35,7 @@ import { GesturesModule } from "./gestures/gestures.module";
 import { FrameRateModule } from "./frame-rate/frame-rate.module";
 import { PointerModule } from "./pointer/pointer.module";
 import { CanvasModule } from "./canvas/canvas.module";
+import { AutomationDetectionModule } from "./automation-detection/automation-detection.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -74,4 +75,5 @@ export const featureModules = [
   FrameRateModule,
   PointerModule,
   CanvasModule,
+  AutomationDetectionModule,
 ];
