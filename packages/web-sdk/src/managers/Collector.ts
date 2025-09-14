@@ -74,6 +74,6 @@ export class Collector {
     console.log({ batch });
 
     // Delegate the actual network request to the APIManager
-    this.apiManager.sendEvents(batch);
+    //  this.apiManager.sendEvents(batch);
   }
 }
