@@ -32,6 +32,7 @@ import { ScreenOrientationModule } from "./screen-orientation/screen-orientation
 import { PageMonitoringModule } from "./page-monitoring/page-monitoring.module";
 import { VisibilityChangeModule } from "./visibility-change/visibility-change.module";
 import { GesturesModule } from "./gestures/gestures.module";
+import { FrameRateModule } from "./frame-rate/frame-rate.module";
 
 export const featureModules = [
   TrueIdModule,
@@ -68,4 +69,5 @@ export const featureModules = [
   PageMonitoringModule,
   VisibilityChangeModule,
   GesturesModule,
+  FrameRateModule,
 ];
