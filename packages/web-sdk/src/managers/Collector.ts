@@ -1,4 +1,4 @@
-import { APIManager } from "./APIManager";
+// import { APIManager } from "./APIManager";
 import { MetadataManager } from "./MetadataManager";
 
 interface CollectorConfig {
@@ -11,7 +11,7 @@ export class Collector {
   private queue = new Map<string, any[]>();
   private config!: CollectorConfig;
   private timer: ReturnType<typeof setTimeout> | null = null;
-  private apiManager = APIManager.getInstance();
+  // private apiManager = APIManager.getInstance();
   private metadataManager = MetadataManager.getInstance();
 
   private constructor() {}
