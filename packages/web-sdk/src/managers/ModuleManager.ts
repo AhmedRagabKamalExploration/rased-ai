@@ -19,12 +19,24 @@ export class ModuleManager {
     this.moduleInstances = moduleClasses.map(
       (ModuleClass) => new ModuleClass()
     );
-    this.moduleInstances.forEach((module) => module.init());
+    this.moduleInstances.forEach((module) => {
+      try {
+        module.init();
+      } catch (error) {
+        console.error(`[SDK] Module initialization failed:`, error);
+      }
+    });
   }
 
   public destroyAll(): void {
     console.log(`[SDK] Destroying ${this.moduleInstances.length} modules...`);
-    this.moduleInstances.forEach((module) => module.destroy());
+    this.moduleInstances.forEach((module) => {
+      try {
+        module.destroy();
+      } catch (error) {
+        console.error(`[SDK] Module destruction failed:`, error);
+      }
+    });
     this.moduleInstances = [];
   }
 }

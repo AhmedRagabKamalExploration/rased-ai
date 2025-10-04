@@ -37,6 +37,49 @@ import { PointerModule } from "./pointer/pointer.module";
 import { CanvasModule } from "./canvas/canvas.module";
 import { AutomationDetectionModule } from "./automation-detection/automation-detection.module";
 
+// Export individual module classes
+export { TrueIdModule } from "./trueid/trueId.module";
+export { SkipToContentModule } from "./skip-to-content/skip-to-content.module";
+export { MouseBehaviourModule } from "./mouse/mouse.module";
+export { ScreenModule } from "./screen/screen.module";
+export { WebGLModule } from "./webGL/webGL.module";
+export { AudioModule } from "./audio/audio.module";
+export { FontModule } from "./font/font.module";
+export { BrowserModule } from "./browser/browser.module";
+export { NetworkModule } from "./network/netwrok.module";
+export { DeviceOrientationModule } from "./device-orientation/device-orientation.module";
+export { KeyboardModule } from "./keyboard/keyboard.module";
+export { TimezoneAndLanguageModule } from "./timezone-language/timezone-language.module";
+export { TouchModule } from "./touch/touch.module";
+export { WebRTCIPModule } from "./webrtc/webrtc.module";
+export { AdblockModule } from "./adblock/adblock.module";
+export { PerformanceModule } from "./performance/performance.module";
+export { MathModule } from "./math/math.module";
+export { BrowserTypeModule } from "./browser-type/browser-type.module";
+export { DeviceModule } from "./device/device.module";
+export { PluginsModule } from "./plugins/plugins.module";
+export { TimezoneModule } from "./timezone/timezone.module";
+export { MalwareModule } from "./malware/malware.module";
+export { MediaModule } from "./media/media.module";
+export { ClientHintsModule } from "./client-hints/client-hints.module";
+export { BrowserSpeechModule } from "./browser-speech/browser-speech.module";
+export { BindingModule } from "./binding/binding.module";
+export { PrivateBrowserModule } from "./private-browser/private-browser.module";
+export { ReferrerUrlModule } from "./referrer-url/referrer-url.module";
+export { BrowserFeaturesModule } from "./browser-features/browser-features.module";
+export { TeamViewerFontModule } from "./team-viewer-font/team-viewer-font.module";
+export { ScreenOrientationModule } from "./screen-orientation/screen-orientation.module";
+export { PageMonitoringModule } from "./page-monitoring/page-monitoring.module";
+export { VisibilityChangeModule } from "./visibility-change/visibility-change.module";
+export { GesturesModule } from "./gestures/gestures.module";
+export { FrameRateModule } from "./frame-rate/frame-rate.module";
+export { PointerModule } from "./pointer/pointer.module";
+export { CanvasModule } from "./canvas/canvas.module";
+export { AutomationDetectionModule } from "./automation-detection/automation-detection.module";
+
+// Export BaseModule
+export { BaseModule } from "./BaseModule";
+
 export const featureModules = [
   TrueIdModule,
   SkipToContentModule,

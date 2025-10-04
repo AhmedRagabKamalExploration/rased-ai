@@ -62,7 +62,10 @@ export class WebSDK {
       console.log("[WebSDK] Started Successfully.");
     } catch (error) {
       console.error("[WebSDK] Failed to start:", error);
-      this.shutdown(); // Clean up on failure
+      // Clean up on failure - call cleanup methods directly since isStarted is false
+      this.moduleManager.destroyAll();
+      this.collector.stop();
+      this.sessionManager.end();
     }
   }
 

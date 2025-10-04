@@ -27,7 +27,14 @@ export abstract class BaseModule {
 
   public destroy(): void {
     this.listeners.forEach(({ target, type, listener }) => {
-      target.removeEventListener(type, listener);
+      try {
+        target.removeEventListener(type, listener);
+      } catch (error) {
+        console.error(
+          `[SDK] ${this.moduleName}: Failed to remove event listener:`,
+          error
+        );
+      }
     });
     this.listeners = [];
   }

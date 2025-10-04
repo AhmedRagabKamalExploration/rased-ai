@@ -106,4 +106,14 @@ export class MetadataManager {
     this.deviceSessionType = "REJOINING";
     this.messageCounter = 0;
   }
+
+  // Reset method for testing
+  public reset(): void {
+    this.collectionEventId = crypto.randomUUID();
+    this.messageCounter = 0;
+    this.deviceSessionType = "INITIATING";
+    this.organizationId = "";
+    this.transactionId = "";
+    this.sessionId = "";
+  }
 }

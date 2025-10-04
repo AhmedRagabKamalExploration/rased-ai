@@ -48,4 +48,9 @@ export class TokenManager {
     }
     return Math.abs(hash).toString(16);
   }
+
+  // Reset method for testing
+  public reset(): void {
+    this.nonceToken = null;
+  }
 }

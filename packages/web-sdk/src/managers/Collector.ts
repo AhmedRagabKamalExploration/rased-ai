@@ -27,6 +27,14 @@ export class Collector {
     this.config = config;
   }
 
+  public reset(): void {
+    this.queue.clear();
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+  }
+
   public add(eventData: any): void {
     const moduleName = eventData.moduleName;
     if (!this.queue.has(moduleName)) {
@@ -51,7 +59,10 @@ export class Collector {
   }
 
   public stop(): void {
-    if (this.timer) clearInterval(this.timer);
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
     this.flush(); // Perform a final flush on shutdown
   }
 

@@ -44,6 +44,7 @@ export class SessionManager {
    */
   public end(): void {
     if (this.timeoutHandle) clearTimeout(this.timeoutHandle);
+    this.timeoutHandle = null;
     console.log(`[SDK] Session ended: ${this._sessionId}`);
     this._sessionId = null;
   }

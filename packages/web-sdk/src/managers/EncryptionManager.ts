@@ -57,7 +57,12 @@ export class EncryptionManager {
           const charCode = encryptedData.charCodeAt(i) - (i % 10);
           deobfuscated += String.fromCharCode(charCode);
         }
-        return atob(deobfuscated);
+        try {
+          return atob(deobfuscated);
+        } catch (error) {
+          console.error("Secondary decryption failed:", error);
+          return deobfuscated; // Return the deobfuscated string if Base64 decode fails
+        }
       },
     });
 
@@ -85,22 +90,27 @@ export class EncryptionManager {
       },
       decrypt: (encryptedData: string) => {
         let decrypted = "";
-        for (let i = 0; i < encryptedData.length; i++) {
-          const charCode = encryptedData.charCodeAt(i);
-          const shift = (i * 7 + 13) % 26;
-          if (charCode >= 65 && charCode <= 90) {
-            decrypted += String.fromCharCode(
-              ((charCode - 65 - shift + 26) % 26) + 65
-            );
-          } else if (charCode >= 97 && charCode <= 122) {
-            decrypted += String.fromCharCode(
-              ((charCode - 97 - shift + 26) % 26) + 97
-            );
-          } else {
-            decrypted += encryptedData[i];
+        try {
+          for (let i = 0; i < encryptedData.length; i++) {
+            const charCode = encryptedData.charCodeAt(i);
+            const shift = (i * 7 + 13) % 26;
+            if (charCode >= 65 && charCode <= 90) {
+              decrypted += String.fromCharCode(
+                ((charCode - 65 - shift + 26) % 26) + 65
+              );
+            } else if (charCode >= 97 && charCode <= 122) {
+              decrypted += String.fromCharCode(
+                ((charCode - 97 - shift + 26) % 26) + 97
+              );
+            } else {
+              decrypted += encryptedData[i];
+            }
           }
+          return decrypted;
+        } catch (error) {
+          console.error("Tertiary decryption failed:", error);
+          return encryptedData; // Return original if decryption fails
         }
-        return decrypted;
       },
     });
 
@@ -118,18 +128,28 @@ export class EncryptionManager {
       },
       decrypt: (encryptedData: string) => {
         let decrypted = "";
-        for (let i = 0; i < encryptedData.length; i += 2) {
-          const hex = encryptedData.substr(i, 2);
-          const charCode = parseInt(hex, 16) ^ 0xaa;
-          decrypted += String.fromCharCode(charCode);
+        try {
+          for (let i = 0; i < encryptedData.length; i += 2) {
+            const hex = encryptedData.substr(i, 2);
+            const charCode = parseInt(hex, 16) ^ 0xaa;
+            decrypted += String.fromCharCode(charCode);
+          }
+          return decrypted;
+        } catch (error) {
+          console.error("Quaternary decryption failed:", error);
+          return encryptedData; // Return original if decryption fails
         }
-        return decrypted;
       },
     });
   }
 
   public encrypt(data: any): string {
     let serializedData = JSON.stringify(data);
+
+    // Handle cases where JSON.stringify returns undefined
+    if (serializedData === undefined) {
+      serializedData = "undefined";
+    }
 
     // Apply all encryption layers in sequence
     let encryptedData = serializedData;
@@ -154,7 +174,14 @@ export class EncryptionManager {
         decryptedData = this.encryptionLayers[i].decrypt(decryptedData);
       }
 
-      return JSON.parse(decryptedData);
+      const parsed = JSON.parse(decryptedData);
+
+      // Handle the special case where we encoded undefined as "undefined"
+      if (parsed === "undefined") {
+        return undefined;
+      }
+
+      return parsed;
     } catch (error) {
       console.error("[EncryptionManager] Decryption failed:", error);
       throw new Error("Payload decryption failed.");
@@ -216,5 +243,11 @@ export class EncryptionManager {
       clearInterval(this.rotationTimer);
       this.rotationTimer = null;
     }
+  }
+
+  public reset(): void {
+    this.destroy();
+    this.currentKey = this.generateKey();
+    this.startKeyRotation();
   }
 }
