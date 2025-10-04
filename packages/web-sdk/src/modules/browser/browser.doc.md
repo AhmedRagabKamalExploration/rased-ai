@@ -281,6 +281,154 @@ interface BrowserAnomalies {
 
 ---
 
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The browser module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface BrowserBackendEvent {
+  eventType: "fingerprint.browser" | "browser.error";
+  payload: BrowserFingerprint | BrowserError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    browser: BrowserBackendEvent[]; // Array of browser events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for browser events:
+
+#### Database Schema (events table)
+
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx",
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "fingerprint.browser", // or "browser.error"
+  "payload": {
+    "basicInfo": { /* browser basic information */ },
+    "plugins": { /* plugin detection data */ },
+    "hardware": { /* hardware capabilities */ },
+    "webApis": { /* web API availability */ },
+    "performance": { /* performance metrics */ },
+    "privacyTools": { /* privacy tool detection */ }
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### Browser Fingerprint Event
+
+```json
+{
+  "eventType": "fingerprint.browser",
+  "payload": {
+    "basicInfo": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "vendor": "Google Inc.",
+      "platform": "Win32",
+      "language": "en-US",
+      "languages": ["en-US", "en"],
+      "cookieEnabled": true,
+      "doNotTrack": "1",
+      "onLine": true
+    },
+    "plugins": {
+      "length": 3,
+      "pluginList": ["Chrome PDF Plugin", "Chrome PDF Viewer", "Native Client"],
+      "mimeTypes": ["application/pdf", "application/x-google-chrome-pdf"]
+    },
+    "hardware": {
+      "hardwareConcurrency": 8,
+      "deviceMemory": 16,
+      "maxTouchPoints": 0,
+      "colorGamut": "srgb"
+    },
+    "webApis": {
+      "geolocation": true,
+      "webgl": true,
+      "webgl2": true,
+      "webrtc": true,
+      "webAudio": true,
+      "webWorkers": true,
+      "serviceWorkers": true,
+      "pushManager": true,
+      "notifications": true,
+      "mediaDevices": true,
+      "battery": true,
+      "vibration": false,
+      "bluetooth": false
+    },
+    "performance": {
+      "timing": {
+        "navigationStart": 1642248000000,
+        "loadEventEnd": 1642248001500,
+        "domContentLoadedEventEnd": 1642248001200
+      },
+      "memory": {
+        "usedJSHeapSize": 10485760,
+        "totalJSHeapSize": 20971520,
+        "jsHeapSizeLimit": 4294705152
+      }
+    },
+    "privacyTools": {
+      "torBrowser": false,
+      "braveShields": false,
+      "firefoxPrivacy": false,
+      "vpnDetection": false
+    }
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module collects browser fingerprint data during initialization
+2. **Analysis**: Cross-validation and spoofing detection performed
+3. **Event Creation**: Creates event with proper structure and timestamp
+4. **Batching**: Event added to current batch with other module events
+5. **Transmission**: Batch sent to backend via `POST /v1/event`
+6. **Storage**: Backend stores individual events in database
+7. **Analysis**: Events can be queried and analyzed for fraud detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming browser events against these requirements:
+
+- ✅ `eventType` must be "fingerprint.browser" or "browser.error"
+- ✅ `payload.basicInfo` must contain userAgent, vendor, platform
+- ✅ `payload.plugins` must contain length and pluginList
+- ✅ `payload.hardware` must contain hardwareConcurrency, deviceMemory
+- ✅ `payload.webApis` must contain boolean values for API availability
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ All string values must be non-empty
+- ✅ All numeric values must be valid numbers
+
+---
+
 ## 🎛️ Configuration Options
 
 ### 🔧 Collection Settings

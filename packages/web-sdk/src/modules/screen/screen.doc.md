@@ -262,6 +262,92 @@ interface BrowserSupport {
 
 ### ⚡ Performance Impact
 
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The screen module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface ScreenBackendEvent {
+  eventType: ""fingerprint.screen" | "screen.error"";
+  payload: ScreenFingerprint | ScreenError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    screen: ScreenBackendEvent[]; // Array of screen events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for screen events:
+
+#### Database Schema (events table)
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx", 
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "fingerprint.screen", // or other screen event types
+  "payload": {
+    /* screen specific data structure */
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### Screen Event Example
+```json
+{
+  "eventType": "fingerprint.screen",
+  "payload": {
+    /* Example payload data */
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module collects screen data during initialization
+2. **Analysis**: Advanced analysis performed on collected data
+3. **Event Creation**: Creates event with proper structure and timestamp
+4. **Batching**: Event added to current batch with other module events
+5. **Transmission**: Batch sent to backend via `POST /v1/event`
+6. **Storage**: Backend stores individual events in database
+7. **Analysis**: Events can be queried and analyzed for fraud detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming screen events against these requirements:
+
+- ✅ `eventType` must be valid screen event type
+- ✅ `payload` must contain required fields based on event type
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ All required fields must be present and valid
+- ✅ Data types must match expected schema
+
+
 - **Synchronous Collection**: Immediate property access
 - **Minimal Processing**: Simple arithmetic calculations
 - **Zero Network**: No external requests required

@@ -573,3 +573,90 @@ The Canvas Fingerprinting Module provides a comprehensive approach to device ide
 The module's ability to generate unique device fingerprints through multiple canvas techniques (2D rendering, WebGL, capability detection) makes it an invaluable tool in modern fraud prevention systems. The research-backed approach ensures high accuracy in device identification while providing multiple layers of fraud detection.
 
 As fraud techniques evolve, canvas-based detection will become increasingly important in maintaining security and trust in digital systems. This module provides a solid foundation for such detection capabilities while respecting user privacy and providing transparent, controllable fingerprinting mechanisms.
+
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The canvas module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface CanvasBackendEvent {
+  eventType: "fingerprint.canvas" | "canvas.error";
+  payload: CanvasFingerprint | CanvasError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    canvas: CanvasBackendEvent[]; // Array of canvas events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for canvas events:
+
+#### Database Schema (events table)
+
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx",
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "fingerprint.canvas", // or other canvas event types
+  "payload": {
+    /* canvas specific data structure */
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### Canvas Event Example
+
+```json
+{
+  "eventType": "fingerprint.canvas",
+  "payload": {
+    /* Example payload data */
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module collects canvas data during initialization
+2. **Analysis**: Advanced analysis performed on collected data
+3. **Event Creation**: Creates event with proper structure and timestamp
+4. **Batching**: Event added to current batch with other module events
+5. **Transmission**: Batch sent to backend via `POST /v1/event`
+6. **Storage**: Backend stores individual events in database
+7. **Analysis**: Events can be queried and analyzed for fraud detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming canvas events against these requirements:
+
+- ✅ `eventType` must be valid canvas event type
+- ✅ `payload` must contain required fields based on event type
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ All required fields must be present and valid
+- ✅ Data types must match expected schema

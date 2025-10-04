@@ -22,6 +22,92 @@ This module's strength lies in its ability to collect multiple types of hints an
 
 ## 📊 Technical Implementation and Data Indicators
 
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The client-hints module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface ClientHintsBackendEvent {
+  eventType: ""context.client-hints" | "client-hints.error"";
+  payload: ClientHintsData | ClientHintsError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    client-hints: ClientHintsBackendEvent[]; // Array of client-hints events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for client-hints events:
+
+#### Database Schema (events table)
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx", 
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "context.client-hints", // or other client-hints event types
+  "payload": {
+    /* client-hints specific data structure */
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### ClientHints Event Example
+```json
+{
+  "eventType": "context.client-hints",
+  "payload": {
+    /* Example payload data */
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module collects client-hints data during initialization
+2. **Analysis**: Advanced analysis performed on collected data
+3. **Event Creation**: Creates event with proper structure and timestamp
+4. **Batching**: Event added to current batch with other module events
+5. **Transmission**: Batch sent to backend via `POST /v1/event`
+6. **Storage**: Backend stores individual events in database
+7. **Analysis**: Events can be queried and analyzed for fraud detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming client-hints events against these requirements:
+
+- ✅ `eventType` must be valid client-hints event type
+- ✅ `payload` must contain required fields based on event type
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ All required fields must be present and valid
+- ✅ Data types must match expected schema
+
+
 ### 🏗️ Event Structure
 
 ```typescript

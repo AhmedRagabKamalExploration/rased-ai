@@ -340,3 +340,234 @@ interface KeyboardAnalysisConfig {
 - **False Positive Rate**: <1% for legitimate human users
 - **Response Time**: <5ms keystroke processing latency
 - **Privacy Compliance**: 100% GDPR/privacy regulation compliance
+
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The keyboard module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface KeyboardBackendEvent {
+  eventType:
+    | "behaviour.keyboard.summary"
+    | "behaviour.keyboard.realtime"
+    | "keyboard.error";
+  payload: KeyboardAnalysis | KeyboardError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    keyboard: KeyboardBackendEvent[]; // Array of keyboard events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for keyboard events:
+
+#### Database Schema (events table)
+
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx",
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "behaviour.keyboard.summary", // or other keyboard event types
+  "payload": {
+    "target": { "tag": string, "id": string, "type": string },
+    "metrics": { /* timing and speed metrics */ },
+    "specialKeys": { /* special key usage counts */ },
+    "characters": { /* character analysis */ },
+    "behavior": { /* human/bot indicators */ },
+    "advanced": { /* advanced analysis data */ }
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### Keyboard Summary Event
+
+```json
+{
+  "eventType": "behaviour.keyboard.summary",
+  "payload": {
+    "target": {
+      "tag": "INPUT",
+      "id": "password",
+      "name": "user_password",
+      "type": "password",
+      "fieldPurpose": "password"
+    },
+    "metrics": {
+      "totalKeyPresses": 12,
+      "totalKeyReleases": 12,
+      "typingDuration": 3500,
+      "activeTypingTime": 2800,
+      "avgDwellTime": 120.5,
+      "medianDwellTime": 115,
+      "dwellTimeVariance": 45.2,
+      "minDwellTime": 80,
+      "maxDwellTime": 200,
+      "avgFlightTime": 180.3,
+      "medianFlightTime": 175,
+      "flightTimeVariance": 60.1,
+      "minFlightTime": 100,
+      "maxFlightTime": 300,
+      "typingSpeed": 2.1,
+      "typingSpeedWPM": 18.5,
+      "burstTypingSpeed": 3.2,
+      "pauseFrequency": 2.1,
+      "avgPauseDuration": 250
+    },
+    "specialKeys": {
+      "backspaceCount": 2,
+      "deleteCount": 0,
+      "tabCount": 1,
+      "arrowKeyCount": 0,
+      "enterCount": 1,
+      "escapeCount": 0,
+      "spaceCount": 0,
+      "shiftCount": 1,
+      "ctrlCount": 0,
+      "altCount": 0
+    },
+    "characters": {
+      "totalCharacters": 10,
+      "alphaCount": 8,
+      "numericCount": 2,
+      "symbolCount": 0,
+      "uppercaseCount": 1,
+      "lowercaseCount": 7,
+      "corrections": 2,
+      "repeatedCharacters": 0,
+      "consecutiveDeletes": 1,
+      "typoPattern": true
+    },
+    "behavior": {
+      "humanIndicators": {
+        "naturalRhythm": true,
+        "errorCorrection": true,
+        "variableTiming": true,
+        "pausesForThought": true,
+        "muscleMemory": false
+      },
+      "botIndicators": {
+        "perfectTiming": false,
+        "zeroErrors": false,
+        "impossibleSpeed": false,
+        "mechanicalRhythm": false,
+        "instantSubmission": false
+      },
+      "consistency": {
+        "dwellTimeConsistency": 0.75,
+        "flightTimeConsistency": 0.68,
+        "rhythmStability": 0.72,
+        "biometricConfidence": 0.85
+      }
+    },
+    "advanced": {
+      "rhythm": {
+        "primaryCadence": 120,
+        "rhythmVariability": 0.3,
+        "polyrhythmic": false,
+        "staccato": false,
+        "legato": true
+      },
+      "cognitiveLoad": {
+        "hesitationPoints": 2,
+        "reformulations": 1,
+        "uncertaintyMarkers": 1,
+        "confidenceLevel": 0.8
+      },
+      "security": {
+        "passwordTypingPattern": true,
+        "credentialStuffing": false,
+        "formFillingBot": false,
+        "humanVerificationScore": 0.85
+      }
+    }
+  },
+  "timestamp": 1642248000000
+}
+```
+
+#### Real-time Keyboard Event
+
+```json
+{
+  "eventType": "behaviour.keyboard.realtime",
+  "payload": {
+    "target": {
+      "tag": "INPUT",
+      "id": "search",
+      "type": "text"
+    },
+    "keyData": {
+      "key": "a",
+      "code": "KeyA",
+      "keyCode": 65,
+      "which": 65,
+      "shiftKey": false,
+      "ctrlKey": false,
+      "altKey": false,
+      "metaKey": false
+    },
+    "timing": {
+      "keyDownTime": 1642248000000,
+      "keyUpTime": 1642248000120,
+      "dwellTime": 120,
+      "flightTime": 180
+    },
+    "context": {
+      "inputValue": "searc",
+      "cursorPosition": 5,
+      "selectionStart": 5,
+      "selectionEnd": 5
+    }
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module captures keystroke events in real-time
+2. **Analysis**: Advanced timing and behavioral analysis performed
+3. **Event Creation**: Creates event with proper structure and timestamp
+4. **Batching**: Event added to current batch with other module events
+5. **Transmission**: Batch sent to backend via `POST /v1/event`
+6. **Storage**: Backend stores individual events in database
+7. **Analysis**: Events can be queried and analyzed for bot detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming keyboard events against these requirements:
+
+- ✅ `eventType` must be valid keyboard event type
+- ✅ `payload.target` must contain tag, id, type
+- ✅ `payload.metrics` must contain timing and speed data
+- ✅ `payload.specialKeys` must contain key usage counts
+- ✅ `payload.characters` must contain character analysis
+- ✅ `payload.behavior` must contain human/bot indicators
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ All numeric values must be valid numbers
+- ✅ Boolean values must be true/false

@@ -88,3 +88,114 @@ interface AdblockError {
   };
 }
 ```
+
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The adblock module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface AdblockBackendEvent {
+  eventType: "adblock" | "adblock.error";
+  payload: AdblockData | AdblockError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    adblock: AdblockBackendEvent[]; // Array of adblock events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for adblock events:
+
+#### Database Schema (events table)
+
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx",
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "adblock", // or "adblock.error"
+  "payload": {
+    "hasAdblocker": boolean,
+    "detectionMethod": string,
+    "timestamp": number,
+    "checkedAttributes": string[]
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### Successful Detection Event
+
+```json
+{
+  "eventType": "adblock",
+  "payload": {
+    "hasAdblocker": true,
+    "detectionMethod": "dom-manipulation-and-resource-check",
+    "timestamp": 1642248000000,
+    "checkedAttributes": ["offsetHeight", "computedStyle", "resourceLoading"]
+  },
+  "timestamp": 1642248000000
+}
+```
+
+#### Error Event
+
+```json
+{
+  "eventType": "adblock.error",
+  "payload": {
+    "error": "WebRTC API not supported",
+    "errorCode": "UNEXPECTED_ERROR",
+    "details": {
+      "browserName": "Mozilla/5.0...",
+      "privacyMode": false,
+      "domManipulationBlocked": false
+    }
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module detects adblock status during initialization
+2. **Event Creation**: Creates event with proper structure and timestamp
+3. **Batching**: Event added to current batch with other module events
+4. **Transmission**: Batch sent to backend via `POST /v1/event`
+5. **Storage**: Backend stores individual events in database
+6. **Analysis**: Events can be queried and analyzed for fraud detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming adblock events against these requirements:
+
+- ✅ `eventType` must be "adblock" or "adblock.error"
+- ✅ `payload` must contain required fields based on event type
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ `hasAdblocker` must be boolean (for success events)
+- ✅ `error` must be string (for error events)
+- ✅ `detectionMethod` must be string (for success events)

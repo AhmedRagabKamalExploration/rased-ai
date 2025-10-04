@@ -625,3 +625,89 @@ The Automation Detection Module provides comprehensive automation detection capa
 The module's ability to detect various automation tools including WebDriver, Selenium, PhantomJS, Chrome DevTools Protocol, and other automation tools makes it an invaluable component in modern fraud prevention systems. The research-backed approach ensures high accuracy in automation detection while maintaining user privacy and legal compliance.
 
 As automation techniques evolve, the module provides a solid foundation for detecting new automation tools and techniques while maintaining effectiveness against evasion attempts. The comprehensive detection approach ensures reliable fraud prevention capabilities while respecting user privacy and providing transparent, controllable detection mechanisms.
+
+
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The automation-detection module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface AutomationDetectionBackendEvent {
+  eventType: ""detection.automation" | "automation-detection.error"";
+  payload: AutomationData | AutomationError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    automation-detection: AutomationDetectionBackendEvent[]; // Array of automation-detection events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for automation-detection events:
+
+#### Database Schema (events table)
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx", 
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "detection.automation", // or other automation-detection event types
+  "payload": {
+    /* automation-detection specific data structure */
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### AutomationDetection Event Example
+```json
+{
+  "eventType": "detection.automation",
+  "payload": {
+    /* Example payload data */
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module collects automation-detection data during initialization
+2. **Analysis**: Advanced analysis performed on collected data
+3. **Event Creation**: Creates event with proper structure and timestamp
+4. **Batching**: Event added to current batch with other module events
+5. **Transmission**: Batch sent to backend via `POST /v1/event`
+6. **Storage**: Backend stores individual events in database
+7. **Analysis**: Events can be queried and analyzed for fraud detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming automation-detection events against these requirements:
+
+- ✅ `eventType` must be valid automation-detection event type
+- ✅ `payload` must contain required fields based on event type
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ All required fields must be present and valid
+- ✅ Data types must match expected schema

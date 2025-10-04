@@ -287,3 +287,187 @@ interface AnalysisThresholds {
 - **False Negative Rate**: < 5% for basic bots
 - **Detection Confidence**: 95%+ for advanced analysis
 - **Real-time Processing**: < 10ms analysis time
+
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The mouse module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface MouseBackendEvent {
+  eventType:
+    | "mousemove"
+    | "mousedown"
+    | "mouseup"
+    | "click"
+    | "dblclick"
+    | "contextmenu"
+    | "mouse.error";
+  payload: MouseEventData | MouseError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    mouse: MouseBackendEvent[]; // Array of mouse events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for mouse events:
+
+#### Database Schema (events table)
+
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx",
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "mousemove", // or other mouse event types
+  "payload": {
+    "mouse": { "screenX": number, "screenY": number, "clientX": number, "clientY": number },
+    "target": { "tag": string, "id": string, "className": string },
+    "trajectory": { /* trajectory analysis data */ },
+    "timing": { /* timing analysis data */ }
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### Mouse Movement Event
+
+```json
+{
+  "eventType": "mousemove",
+  "payload": {
+    "mouse": {
+      "screenX": 1920,
+      "screenY": 1080,
+      "clientX": 800,
+      "clientY": 600
+    },
+    "pointCount": 15
+  },
+  "timestamp": 1642248000000
+}
+```
+
+#### Mouse Click Event
+
+```json
+{
+  "eventType": "click",
+  "payload": {
+    "target": {
+      "tag": "BUTTON",
+      "id": "submit-btn",
+      "className": "btn btn-primary",
+      "text": "Submit Form",
+      "position": { "x": 100, "y": 200, "width": 120, "height": 40 }
+    },
+    "mouse": {
+      "button": 0,
+      "screenX": 1920,
+      "screenY": 1080,
+      "clientX": 800,
+      "clientY": 600
+    },
+    "trajectory": {
+      "totalDistance": 150.5,
+      "straightLineDistance": 120.3,
+      "straightLineRatio": 0.8,
+      "avgSpeed": 2.1,
+      "maxSpeed": 4.5,
+      "minSpeed": 0.8,
+      "speedVariance": 1.2,
+      "timeSpent": 1200,
+      "directions": 8,
+      "smoothness": 0.75,
+      "curvature": 0.3,
+      "angularChanges": 3,
+      "hesitationPoints": 2,
+      "accelerationPoints": 4,
+      "decelerationPoints": 3,
+      "backtrackEvents": 1,
+      "pointCount": 25,
+      "samplingRate": 20,
+      "pathComplexity": 0.6
+    },
+    "timing": {
+      "actionDuration": 1200,
+      "hoverTime": 300,
+      "approachTime": 800,
+      "precisionTime": 100
+    }
+  },
+  "timestamp": 1642248000000
+}
+```
+
+#### Mouse Down Event
+
+```json
+{
+  "eventType": "mousedown",
+  "payload": {
+    "mouse": {
+      "button": 0,
+      "screenX": 1920,
+      "screenY": 1080,
+      "clientX": 800,
+      "clientY": 600
+    },
+    "target": {
+      "tag": "INPUT",
+      "id": "username",
+      "className": "form-control"
+    },
+    "trajectory": {
+      "startTime": 1642248000000,
+      "initialPoint": [800, 600]
+    }
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module captures mouse events in real-time
+2. **Analysis**: Advanced trajectory and timing analysis performed
+3. **Event Creation**: Creates event with proper structure and timestamp
+4. **Batching**: Event added to current batch with other module events
+5. **Transmission**: Batch sent to backend via `POST /v1/event`
+6. **Storage**: Backend stores individual events in database
+7. **Analysis**: Events can be queried and analyzed for bot detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming mouse events against these requirements:
+
+- ✅ `eventType` must be valid mouse event type
+- ✅ `payload.mouse` must contain screenX, screenY, clientX, clientY
+- ✅ `payload.target` must contain tag, id, className
+- ✅ `payload.trajectory` must contain analysis data for terminal events
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ `button` must be 0, 1, or 2 (left, middle, right)
+- ✅ All numeric values must be valid numbers

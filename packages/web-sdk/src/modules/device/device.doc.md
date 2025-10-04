@@ -73,3 +73,167 @@ interface DeviceError {
   };
 }
 ```
+
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The device module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface DeviceBackendEvent {
+  eventType: "device" | "device.error";
+  payload: DeviceData | DeviceError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    device: DeviceBackendEvent[]; // Array of device events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for device events:
+
+#### Database Schema (events table)
+
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx",
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "device", // or "device.error"
+  "payload": {
+    "systemInfo": { /* system information */ },
+    "gpuInfo": { /* GPU information */ },
+    "hardwareInfo": { /* hardware capabilities */ },
+    "displayInfo": { /* display properties */ },
+    "memoryInfo": { /* memory information */ }
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### Device Fingerprint Event
+
+```json
+{
+  "eventType": "device",
+  "payload": {
+    "systemInfo": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "platform": "Win32",
+      "language": "en-US",
+      "languages": ["en-US", "en"],
+      "cookieEnabled": true,
+      "doNotTrack": "1",
+      "onLine": true
+    },
+    "gpuInfo": {
+      "vendor": "Google Inc. (Intel)",
+      "renderer": "ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "version": "OpenGL ES 2.0 (ANGLE 2.1.0)",
+      "shadingLanguageVersion": "WebGL GLSL ES 1.0 (OpenGL ES GLSL ES 1.0 Chromium)",
+      "maxTextureSize": 16384,
+      "maxViewportDims": [16384, 16384],
+      "aliasedLineWidthRange": [1, 1],
+      "aliasedPointSizeRange": [1, 1024],
+      "maxVertexAttribs": 16,
+      "maxVaryingVectors": 8,
+      "maxFragmentUniformVectors": 1024,
+      "maxVertexUniformVectors": 1024,
+      "maxVertexTextureImageUnits": 16,
+      "maxCombinedTextureImageUnits": 32,
+      "maxTextureImageUnits": 16,
+      "maxRenderbufferSize": 16384,
+      "maxCubeMapTextureSize": 16384,
+      "maxAnisotropy": 16,
+      "maxDrawBuffers": 4,
+      "maxColorAttachments": 4,
+      "maxSamples": 4
+    },
+    "hardwareInfo": {
+      "hardwareConcurrency": 8,
+      "deviceMemory": 16,
+      "maxTouchPoints": 0,
+      "colorGamut": "srgb",
+      "colorDepth": 24,
+      "pixelDepth": 24
+    },
+    "displayInfo": {
+      "screenWidth": 1920,
+      "screenHeight": 1080,
+      "screenColorDepth": 24,
+      "screenPixelDepth": 24,
+      "availWidth": 1920,
+      "availHeight": 1040,
+      "devicePixelRatio": 1,
+      "orientation": "landscape-primary"
+    },
+    "memoryInfo": {
+      "usedJSHeapSize": 10485760,
+      "totalJSHeapSize": 20971520,
+      "jsHeapSizeLimit": 4294705152
+    }
+  },
+  "timestamp": 1642248000000
+}
+```
+
+#### Error Event
+
+```json
+{
+  "eventType": "device.error",
+  "payload": {
+    "error": "WebGL context creation failed",
+    "errorCode": "GPU_INFO_FAILED",
+    "details": {
+      "message": "Unable to create WebGL context for GPU fingerprinting"
+    }
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module collects device fingerprint data during initialization
+2. **Analysis**: GPU and hardware information analysis performed
+3. **Event Creation**: Creates event with proper structure and timestamp
+4. **Batching**: Event added to current batch with other module events
+5. **Transmission**: Batch sent to backend via `POST /v1/event`
+6. **Storage**: Backend stores individual events in database
+7. **Analysis**: Events can be queried and analyzed for device identification
+
+### 📊 Backend Event Validation
+
+The backend validates incoming device events against these requirements:
+
+- ✅ `eventType` must be "device" or "device.error"
+- ✅ `payload.systemInfo` must contain userAgent, platform, language
+- ✅ `payload.gpuInfo` must contain vendor, renderer, version
+- ✅ `payload.hardwareInfo` must contain hardwareConcurrency, deviceMemory
+- ✅ `payload.displayInfo` must contain screen dimensions and properties
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ All numeric values must be valid numbers
+- ✅ All string values must be non-empty

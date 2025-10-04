@@ -82,3 +82,147 @@ interface WebRTCError {
 - **Asynchronous & Lightweight**: The entire process runs asynchronously and typically completes in under 200ms. It has minimal impact on performance.
 
 - **Timeout**: A timeout is implemented to ensure the module doesn't hang indefinitely if the STUN servers are unreachable or the process fails.
+
+---
+
+## 📤 Output/Send Events to Backend
+
+### 🚀 Event Transmission Format
+
+The WebRTC module sends events to the backend in the following structure:
+
+```typescript
+// Individual event sent to backend
+interface WebRTCBackendEvent {
+  eventType: "context.webrtc.ips" | "context.webrtc.error";
+  payload: WebRTCFingerprint | WebRTCError;
+  timestamp: number; // Unix timestamp in milliseconds
+}
+```
+
+### 📦 Batch Event Structure
+
+Events are sent as part of a batch to the backend API endpoint `POST /v1/event`:
+
+```typescript
+interface EventBatch {
+  deviceId: string; // Unique device identifier
+  batchId: string; // Unique batch identifier
+  batchTimestamp: string; // ISO 8601 timestamp
+  modules: {
+    webrtc: WebRTCBackendEvent[]; // Array of WebRTC events
+    // ... other module events
+  };
+}
+```
+
+### 🎯 Expected Backend Properties
+
+The backend expects and stores the following properties for WebRTC events:
+
+#### Database Schema (events table)
+
+```sql
+{
+  "id": "unique-event-id",
+  "transaction_id": "txn-xxx",
+  "organization_id": "org-xxx",
+  "session_id": "ssn-xxx",
+  "device_id": "device-xxx",
+  "batch_id": "batch-xxx",
+  "event_type": "context.webrtc.ips", // or "context.webrtc.error"
+  "payload": {
+    "supported": boolean,
+    "timedOut": boolean,
+    "candidates": {
+      "publicIPs": { "ipv4": string[], "ipv6": string[] },
+      "localIPs": string[]
+    },
+    "rawCandidates": string[]
+  },
+  "received_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+#### Successful IP Discovery Event
+
+```json
+{
+  "eventType": "context.webrtc.ips",
+  "payload": {
+    "supported": true,
+    "timedOut": false,
+    "candidates": {
+      "publicIPs": {
+        "ipv4": ["203.0.113.45"],
+        "ipv6": ["2001:db8::1"]
+      },
+      "localIPs": ["192.168.1.100", "10.0.0.5"]
+    },
+    "rawCandidates": [
+      "candidate:1 1 UDP 2113667326 203.0.113.45 54400 typ host",
+      "candidate:2 1 UDP 1694498814 192.168.1.100 54401 typ host",
+      "candidate:3 1 UDP 1694498815 10.0.0.5 54402 typ host"
+    ]
+  },
+  "timestamp": 1642248000000
+}
+```
+
+#### Error Event
+
+```json
+{
+  "eventType": "context.webrtc.error",
+  "payload": {
+    "supported": false,
+    "error": "WebRTC API not supported in this browser"
+  },
+  "timestamp": 1642248000000
+}
+```
+
+#### Timeout Event
+
+```json
+{
+  "eventType": "context.webrtc.ips",
+  "payload": {
+    "supported": true,
+    "timedOut": true,
+    "candidates": {
+      "publicIPs": {
+        "ipv4": [],
+        "ipv6": []
+      },
+      "localIPs": []
+    },
+    "rawCandidates": []
+  },
+  "timestamp": 1642248000000
+}
+```
+
+### 🔄 Event Processing Flow
+
+1. **Collection**: Module initiates WebRTC IP discovery process
+2. **Discovery**: STUN server queries to discover IP addresses
+3. **Analysis**: IP addresses categorized as public vs local
+4. **Event Creation**: Creates event with proper structure and timestamp
+5. **Batching**: Event added to current batch with other module events
+6. **Transmission**: Batch sent to backend via `POST /v1/event`
+7. **Storage**: Backend stores individual events in database
+8. **Analysis**: Events can be queried and analyzed for VPN/proxy detection
+
+### 📊 Backend Event Validation
+
+The backend validates incoming WebRTC events against these requirements:
+
+- ✅ `eventType` must be "context.webrtc.ips" or "context.webrtc.error"
+- ✅ `payload.supported` must be boolean
+- ✅ `payload.candidates` must contain publicIPs and localIPs objects
+- ✅ `payload.publicIPs` must contain ipv4 and ipv6 arrays
+- ✅ `payload.localIPs` must be string array
+- ✅ `payload.rawCandidates` must be string array
+- ✅ `timestamp` must be valid Unix timestamp
+- ✅ IP addresses must be valid IPv4 or IPv6 format
