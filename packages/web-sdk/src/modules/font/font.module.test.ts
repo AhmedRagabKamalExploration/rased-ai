@@ -5,7 +5,8 @@ import { EventManager } from "@/managers/EventManager";
 // Mock EventManager
 const mockEventManager = {
   dispatch: vi.fn(),
-};
+  collector: {} as any,
+} as any;
 
 vi.mock("@/managers/EventManager", () => ({
   EventManager: {
@@ -89,7 +90,7 @@ describe("FontModule", () => {
           }
           return hash;
         }),
-      },
+      } as any,
     };
 
     // Mock console methods
@@ -100,7 +101,7 @@ describe("FontModule", () => {
     };
 
     // Mock setTimeout to actually delay the callback
-    vi.spyOn(global, "setTimeout").mockImplementation((callback, delay) => {
+    vi.spyOn(global, "setTimeout").mockImplementation((callback, _delay) => {
       // Store the callback for manual execution in tests
       (global as any).storedFontCallback = callback;
       return 1 as any;
@@ -119,8 +120,10 @@ describe("FontModule", () => {
     });
 
     it("should have mocked EventManager", () => {
-      expect(fontModule.eventManager).toBe(mockEventManager);
-      expect(fontModule.eventManager.dispatch).toBe(mockEventManager.dispatch);
+      expect((fontModule as any).eventManager).toBe(mockEventManager);
+      expect((fontModule as any).eventManager.dispatch).toBe(
+        mockEventManager.dispatch
+      );
     });
   });
 
@@ -194,7 +197,7 @@ describe("FontModule", () => {
         },
         appendChild: vi.fn(),
       };
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "div") return mockContainer;
         if (tagName === "span")
           return {
@@ -243,7 +246,7 @@ describe("FontModule", () => {
       };
 
       // Mock createElement to return our probe
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "span") return mockProbe;
         if (tagName === "div") return { style: {}, appendChild: vi.fn() };
         return {};
@@ -279,7 +282,7 @@ describe("FontModule", () => {
       };
 
       // Mock createElement to return our probe
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "span") return mockProbe;
         if (tagName === "div") return { style: {}, appendChild: vi.fn() };
         return {};
@@ -314,7 +317,7 @@ describe("FontModule", () => {
       };
 
       // Mock createElement to return our probe
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "span") return mockProbe;
         if (tagName === "div") return { style: {}, appendChild: vi.fn() };
         return {};
@@ -343,7 +346,7 @@ describe("FontModule", () => {
         },
         appendChild: vi.fn(),
       };
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "div") return mockContainer;
         if (tagName === "span")
           return {
@@ -423,7 +426,7 @@ describe("FontModule", () => {
       };
 
       // Mock all fonts to have same dimensions (no fonts detected)
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "span") return mockProbe;
         if (tagName === "div")
           return {

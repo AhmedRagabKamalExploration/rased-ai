@@ -76,7 +76,7 @@ describe("AudioModule", () => {
       webkitOfflineAudioContext: vi
         .fn()
         .mockImplementation(() => mockAudioContext),
-    };
+    } as any;
 
     // Mock crypto.subtle.digest
     global.crypto = {
@@ -90,7 +90,7 @@ describe("AudioModule", () => {
           }
           return hash;
         }),
-      },
+      } as any,
     };
 
     // Mock console methods
@@ -136,9 +136,9 @@ describe("AudioModule", () => {
 
       global.window = {
         ...global.window,
-        OfflineAudioContext: undefined,
-        webkitOfflineAudioContext: undefined,
-      };
+        OfflineAudioContext: undefined as any,
+        webkitOfflineAudioContext: undefined as any,
+      } as any;
 
       audioModule.init();
 

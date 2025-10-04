@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 
 // Mock crypto-js first
 vi.mock("crypto-js", () => ({
-  SHA256: vi.fn().mockImplementation((input) => ({
+  SHA256: vi.fn().mockImplementation((_input) => ({
     toString: vi.fn().mockReturnValue("mocked-hash-123456789"),
   })),
 }));
@@ -39,9 +39,12 @@ describe("MathModule", () => {
 
     // Mock crypto-js SHA256 directly
     const { SHA256 } = await import("crypto-js");
-    vi.mocked(SHA256).mockImplementation((input) => ({
-      toString: vi.fn().mockReturnValue("mocked-hash-123456789"),
-    }));
+    vi.mocked(SHA256).mockImplementation(
+      (_input) =>
+        ({
+          toString: vi.fn().mockReturnValue("mocked-hash-123456789"),
+        }) as any
+    );
 
     mathModule = new MathModule();
   });

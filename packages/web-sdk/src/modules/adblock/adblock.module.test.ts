@@ -107,7 +107,7 @@ describe("AdblockModule", () => {
         src: "",
         appendChild: vi.fn(),
       };
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "script") return mockScript;
         return mockElement;
       });
@@ -175,7 +175,7 @@ describe("AdblockModule", () => {
         src: "",
         appendChild: vi.fn(),
       };
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "script") return mockScript;
         return mockElement;
       });
@@ -216,12 +216,12 @@ describe("AdblockModule", () => {
         src: "",
         appendChild: vi.fn(),
       };
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "script") {
           // Simulate onerror being called
           setTimeout(() => {
             if (mockScript.onerror) {
-              mockScript.onerror(new Event("error"));
+              (mockScript as any).onerror(new Event("error"));
             }
           }, 0);
           return mockScript;
@@ -296,7 +296,7 @@ describe("AdblockModule", () => {
 
       // Simulate onerror being called
       if (mockScript.onerror) {
-        mockScript.onerror(new Event("error"));
+        (mockScript as any).onerror(new Event("error"));
       }
 
       const result = await promise;
@@ -317,7 +317,7 @@ describe("AdblockModule", () => {
 
       // Simulate onload being called
       if (mockScript.onload) {
-        mockScript.onload(new Event("load"));
+        (mockScript as any).onload(new Event("load"));
       }
 
       const result = await promise;
@@ -366,7 +366,7 @@ describe("AdblockModule", () => {
         src: "",
         appendChild: vi.fn(),
       };
-      mockDocument.createElement.mockImplementation((tagName) => {
+      mockDocument.createElement.mockImplementation((tagName: string) => {
         if (tagName === "script") return mockScript;
         return mockElement;
       });

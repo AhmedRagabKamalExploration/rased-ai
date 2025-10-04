@@ -26,7 +26,7 @@ describe("ReferrerUrlModule", () => {
     // Mock document
     mockDocument = {
       referrer: "https://google.com",
-    };
+    } as any;
 
     global.document = mockDocument;
 
@@ -100,7 +100,7 @@ describe("ReferrerUrlModule", () => {
     it("should return 'direct' when no referrer is available", () => {
       global.document = {
         referrer: "",
-      };
+      } as any;
 
       // Access private method through any type
       const result = (referrerUrlModule as any).getReferrerUrl();
@@ -110,8 +110,8 @@ describe("ReferrerUrlModule", () => {
 
     it("should return 'direct' when referrer is null", () => {
       global.document = {
-        referrer: null,
-      };
+        referrer: null as any,
+      } as any;
 
       // Access private method through any type
       const result = (referrerUrlModule as any).getReferrerUrl();
@@ -121,8 +121,8 @@ describe("ReferrerUrlModule", () => {
 
     it("should return 'direct' when referrer is undefined", () => {
       global.document = {
-        referrer: undefined,
-      };
+        referrer: undefined as any,
+      } as any;
 
       // Access private method through any type
       const result = (referrerUrlModule as any).getReferrerUrl();
@@ -133,7 +133,7 @@ describe("ReferrerUrlModule", () => {
     it("should return actual referrer URL when present", () => {
       global.document = {
         referrer: "https://example.com/page",
-      };
+      } as any;
 
       // Access private method through any type
       const result = (referrerUrlModule as any).getReferrerUrl();
@@ -166,7 +166,7 @@ describe("ReferrerUrlModule", () => {
       ];
 
       testCases.forEach(({ referrer, expected }) => {
-        global.document = { referrer };
+        global.document = { referrer } as any;
 
         const newModule = new ReferrerUrlModule();
         newModule.init();
@@ -185,7 +185,7 @@ describe("ReferrerUrlModule", () => {
     it("should handle empty string referrer", () => {
       global.document = {
         referrer: "",
-      };
+      } as any;
 
       referrerUrlModule.init();
 

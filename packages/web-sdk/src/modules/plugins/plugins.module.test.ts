@@ -157,8 +157,8 @@ describe("PluginsModule", () => {
 
     it("should handle empty plugins array", () => {
       global.navigator = {
-        plugins: [],
-      };
+        plugins: [] as any,
+      } as any;
 
       // Access private method through any type
       const result = (pluginsModule as any).collectPlugins();
@@ -168,8 +168,8 @@ describe("PluginsModule", () => {
 
     it("should handle undefined plugins", () => {
       global.navigator = {
-        plugins: undefined,
-      };
+        plugins: undefined as any,
+      } as any;
 
       // Access private method through any type
       const result = (pluginsModule as any).collectPlugins();
@@ -186,8 +186,8 @@ describe("PluginsModule", () => {
       };
 
       global.navigator = {
-        plugins: [mockPlugin],
-      };
+        plugins: [mockPlugin] as any,
+      } as any;
 
       // Access private method through any type
       const result = (pluginsModule as any).collectPlugins();
@@ -225,8 +225,8 @@ describe("PluginsModule", () => {
       };
 
       global.navigator = {
-        plugins: [mockPlugin],
-      };
+        plugins: [mockPlugin] as any,
+      } as any;
 
       // Access private method through any type
       const result = (pluginsModule as any).collectPlugins();
@@ -286,8 +286,8 @@ describe("PluginsModule", () => {
       };
 
       global.navigator = {
-        plugins: [mockPlugin],
-      };
+        plugins: [mockPlugin] as any,
+      } as any;
 
       pluginsModule.init();
 
