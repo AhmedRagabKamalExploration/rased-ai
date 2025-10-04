@@ -28,7 +28,7 @@ describe("KeyboardModule", () => {
     global.document = {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    };
+    } as any;
 
     // Mock console methods
     global.console = {
@@ -295,13 +295,13 @@ describe("KeyboardModule", () => {
       // Simulate typing session
       const keys = ["KeyA", "KeyB", "KeyC"];
 
-      keys.forEach((key, index) => {
+      keys.forEach((key, _index) => {
         const keyDownEvent = { code: key, target: mockInputElement } as any;
         const keyUpEvent = { code: key, target: mockInputElement } as any;
 
-        vi.spyOn(Date, "now").mockReturnValue(1000 + index * 100);
+        vi.spyOn(Date, "now").mockReturnValue(1000 + _index * 100);
         handleKeyDown(keyDownEvent);
-        vi.spyOn(Date, "now").mockReturnValue(1050 + index * 100);
+        vi.spyOn(Date, "now").mockReturnValue(1050 + _index * 100);
         handleKeyUp(keyUpEvent);
       });
 
@@ -402,13 +402,13 @@ describe("KeyboardModule", () => {
       // Simulate typing session
       const keys = ["KeyA", "KeyB", "KeyC", "KeyD"];
 
-      keys.forEach((key, index) => {
+      keys.forEach((key, _index) => {
         const keyDownEvent = { code: key, target: mockInputElement } as any;
         const keyUpEvent = { code: key, target: mockInputElement } as any;
 
-        vi.spyOn(Date, "now").mockReturnValue(1000 + index * 100);
+        vi.spyOn(Date, "now").mockReturnValue(1000 + _index * 100);
         handleKeyDown(keyDownEvent);
-        vi.spyOn(Date, "now").mockReturnValue(1050 + index * 100);
+        vi.spyOn(Date, "now").mockReturnValue(1050 + _index * 100);
         handleKeyUp(keyUpEvent);
       });
 
@@ -527,7 +527,7 @@ describe("KeyboardModule", () => {
         { code: "KeyO", time: 1600 },
       ];
 
-      keys.forEach((key, index) => {
+      keys.forEach((key, _index) => {
         const keyDownEvent = {
           code: key.code,
           target: mockInputElement,

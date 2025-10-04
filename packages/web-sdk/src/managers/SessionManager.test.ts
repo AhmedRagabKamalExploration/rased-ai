@@ -97,7 +97,7 @@ describe("SessionManager", () => {
       vi.advanceTimersByTime(15 * 60 * 1000 + 1000); // 15 minutes + 1 second
 
       // Session should have timed out
-      expect(sessionManager._sessionId).toBe(null);
+      expect((sessionManager as any)._sessionId).toBe(null);
     });
   });
 
@@ -184,7 +184,7 @@ describe("SessionManager", () => {
       vi.advanceTimersByTime(10 * 60 * 1000 + 1000); // 10 minutes + 1 second
 
       // Session should have timed out
-      expect(sessionManager._sessionId).toBe(null);
+      expect((sessionManager as any)._sessionId).toBe(null);
     });
   });
 

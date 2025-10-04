@@ -182,7 +182,7 @@ describe("TimezoneModule", () => {
         { offset: 540, description: "Japan Standard Time (UTC+9)" },
       ];
 
-      timezoneScenarios.forEach((scenario) => {
+      timezoneScenarios.forEach((_scenario) => {
         const newTimezoneModule = new TimezoneModule();
         newTimezoneModule.init();
 

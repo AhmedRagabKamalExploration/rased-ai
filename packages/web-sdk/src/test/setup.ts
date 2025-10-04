@@ -4,7 +4,7 @@ import { vi } from "vitest";
 Object.defineProperty(global, "crypto", {
   value: {
     subtle: {
-      digest: vi.fn().mockImplementation(async (algorithm, data) => {
+      digest: vi.fn().mockImplementation(async (_algorithm, data) => {
         // Simple mock implementation that returns a predictable hash
         const text = new TextDecoder().decode(data);
         // Create a 32-byte array (SHA-256 size) with predictable content
@@ -153,10 +153,13 @@ Object.defineProperty(global, "performance", {
 });
 
 // Mock PerformanceObserver
-global.PerformanceObserver = vi.fn().mockImplementation(() => ({
+global.PerformanceObserver = vi.fn().mockImplementation((_callback) => ({
   observe: vi.fn(),
   disconnect: vi.fn(),
-}));
+})) as any;
+
+// Add supportedEntryTypes static property
+(global.PerformanceObserver as any).supportedEntryTypes = ['navigation', 'resource'];
 
 // Mock IndexedDB
 const mockIndexedDB = {
@@ -185,13 +188,13 @@ Object.defineProperty(global, "indexedDB", {
 });
 
 // Mock Date.now specifically
-const mockDateNow = vi.fn().mockReturnValue(1234567890);
+vi.fn().mockReturnValue(1234567890);
 
 // Mock Date.now directly
 vi.spyOn(Date, "now").mockReturnValue(1234567890);
 
 // Mock Hammer.js to prevent errors in gestures module
-global.Hammer = vi.fn().mockImplementation(() => ({
+(global as any).Hammer = vi.fn().mockImplementation(() => ({
   on: vi.fn(),
   off: vi.fn(),
   destroy: vi.fn(),
@@ -201,7 +204,7 @@ global.Hammer = vi.fn().mockImplementation(() => ({
 
 // Mock the Hammer.js import
 vi.mock("@/libs/hammer", () => ({
-  default: global.Hammer,
+  default: (global as any).Hammer,
 }));
 
 // Mock Performance API
@@ -232,11 +235,14 @@ Object.defineProperty(global, "performance", {
 });
 
 // Mock PerformanceObserver
-global.PerformanceObserver = vi.fn().mockImplementation((callback) => ({
+global.PerformanceObserver = vi.fn().mockImplementation((_callback) => ({
   observe: vi.fn(),
   disconnect: vi.fn(),
   takeRecords: vi.fn().mockReturnValue([]),
-}));
+})) as any;
+
+// Add supportedEntryTypes static property
+(global.PerformanceObserver as any).supportedEntryTypes = ['navigation', 'resource'];
 
 // Mock console methods to avoid noise in tests
 global.console = {
@@ -244,4 +250,4 @@ global.console = {
   error: vi.fn(),
   warn: vi.fn(),
   info: vi.fn(),
-};
+} as any;

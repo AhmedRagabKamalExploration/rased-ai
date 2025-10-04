@@ -28,7 +28,7 @@ describe("MouseBehaviourModule", () => {
     global.document = {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    };
+    } as any;
 
     // Mock console methods
     global.console = {
@@ -141,7 +141,7 @@ describe("MouseBehaviourModule", () => {
         mouseModule
       );
 
-      mockMouseEvent.type = "mousemove";
+      (mockMouseEvent as any).type = "mousemove";
       handleMouseEvent(mockMouseEvent);
 
       expect(mockEventManager.dispatch).toHaveBeenCalledWith(
@@ -167,7 +167,7 @@ describe("MouseBehaviourModule", () => {
         mouseModule
       );
 
-      mockMouseEvent.type = "mousemove";
+      (mockMouseEvent as any).type = "mousemove";
 
       // First mousemove
       handleMouseEvent(mockMouseEvent);
@@ -193,11 +193,11 @@ describe("MouseBehaviourModule", () => {
       );
 
       // First mousedown to start trajectory
-      mockMouseEvent.type = "mousedown";
+      (mockMouseEvent as any).type = "mousedown";
       handleMouseEvent(mockMouseEvent);
 
       // Then click
-      mockMouseEvent.type = "click";
+      (mockMouseEvent as any).type = "click";
       handleMouseEvent(mockMouseEvent);
 
       expect(mockEventManager.dispatch).toHaveBeenCalledWith(
@@ -232,7 +232,7 @@ describe("MouseBehaviourModule", () => {
         mouseModule
       );
 
-      mockMouseEvent.type = "dblclick";
+      (mockMouseEvent as any).type = "dblclick";
       handleMouseEvent(mockMouseEvent);
 
       expect(mockEventManager.dispatch).toHaveBeenCalledWith(
@@ -253,7 +253,7 @@ describe("MouseBehaviourModule", () => {
         mouseModule
       );
 
-      mockMouseEvent.type = "contextmenu";
+      (mockMouseEvent as any).type = "contextmenu";
       handleMouseEvent(mockMouseEvent);
 
       expect(mockEventManager.dispatch).toHaveBeenCalledWith(

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { ConfigManager, SdkInitConfig } from "./ConfigManager";
+import { ConfigManager, type SdkInitConfig } from "./ConfigManager";
 
 describe("ConfigManager", () => {
   let configManager: ConfigManager;

@@ -116,7 +116,7 @@ describe("NetworkModule", () => {
       );
 
       // Should add change listener
-      expect(global.navigator.connection.addEventListener).toHaveBeenCalledWith(
+      expect((global.navigator as any).connection.addEventListener).toHaveBeenCalledWith(
         "change",
         expect.any(Function),
         undefined
@@ -140,7 +140,7 @@ describe("NetworkModule", () => {
     });
 
     it("should handle offline state", () => {
-      global.navigator.onLine = false;
+      (global.navigator as any).onLine = false;
 
       networkModule.init();
 
@@ -181,7 +181,7 @@ describe("NetworkModule", () => {
     });
 
     it("should handle missing connection properties", () => {
-      global.navigator.connection = {
+      (global.navigator as any).connection = {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
       } as any;
@@ -240,7 +240,7 @@ describe("NetworkModule", () => {
 
       // Simulate connection change
       const changeHandler =
-        global.navigator.connection.addEventListener.mock.calls[0][1];
+        (global.navigator as any).connection.addEventListener.mock.calls[0][1];
       changeHandler();
 
       // Should dispatch twice: once on init, once on change
@@ -251,12 +251,12 @@ describe("NetworkModule", () => {
       networkModule.init();
 
       // Change connection type
-      global.navigator.connection.type = "cellular";
-      global.navigator.connection.effectiveType = "3g";
+      (global.navigator as any).connection.type = "cellular";
+      (global.navigator as any).connection.effectiveType = "3g";
 
       // Simulate connection change
       const changeHandler =
-        global.navigator.connection.addEventListener.mock.calls[0][1];
+        (global.navigator as any).connection.addEventListener.mock.calls[0][1];
       changeHandler();
 
       expect(mockEventManager.dispatch).toHaveBeenCalledWith(
@@ -276,11 +276,11 @@ describe("NetworkModule", () => {
       networkModule.init();
 
       // Change online state
-      global.navigator.onLine = false;
+      (global.navigator as any).onLine = false;
 
       // Simulate connection change
       const changeHandler =
-        global.navigator.connection.addEventListener.mock.calls[0][1];
+        (global.navigator as any).connection.addEventListener.mock.calls[0][1];
       changeHandler();
 
       expect(mockEventManager.dispatch).toHaveBeenCalledWith(
@@ -315,7 +315,7 @@ describe("NetworkModule", () => {
       );
 
       // Verify change listener was added
-      expect(global.navigator.connection.addEventListener).toHaveBeenCalledWith(
+      expect((global.navigator as any).connection.addEventListener).toHaveBeenCalledWith(
         "change",
         expect.any(Function),
         undefined
@@ -335,7 +335,7 @@ describe("NetworkModule", () => {
       ];
 
       connectionTypes.forEach((type) => {
-        global.navigator.connection.type = type;
+        (global.navigator as any).connection.type = type;
 
         const newNetworkModule = new NetworkModule();
         newNetworkModule.init();
@@ -354,7 +354,7 @@ describe("NetworkModule", () => {
       const effectiveTypes = ["slow-2g", "2g", "3g", "4g"];
 
       effectiveTypes.forEach((effectiveType) => {
-        global.navigator.connection.effectiveType = effectiveType;
+        (global.navigator as any).connection.effectiveType = effectiveType;
 
         const newNetworkModule = new NetworkModule();
         newNetworkModule.init();
@@ -370,7 +370,7 @@ describe("NetworkModule", () => {
     });
 
     it("should handle various connection metrics", () => {
-      global.navigator.connection = {
+      (global.navigator as any).connection = {
         type: "ethernet",
         effectiveType: "4g",
         rtt: 25,

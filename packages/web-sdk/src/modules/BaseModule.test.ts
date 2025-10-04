@@ -38,7 +38,7 @@ describe("BaseModule", () => {
     global.document = {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    };
+    } as any;
 
     testModule = new TestModule();
   });
@@ -49,7 +49,7 @@ describe("BaseModule", () => {
 
   describe("constructor", () => {
     it("should initialize with event manager", () => {
-      expect(testModule.eventManager).toBe(mockEventManager);
+      expect((testModule as any).eventManager).toBe(mockEventManager);
     });
 
     it("should initialize with empty listeners array", () => {
@@ -80,7 +80,7 @@ describe("BaseModule", () => {
       };
       const mockListener = vi.fn();
 
-      testModule.addListener(mockTarget as any, "click", mockListener);
+      (testModule as any).addListener(mockTarget as any, "click", mockListener);
 
       expect(mockTarget.addEventListener).toHaveBeenCalledWith(
         "click",
@@ -105,7 +105,7 @@ describe("BaseModule", () => {
       const mockListener = vi.fn();
       const options = { once: true, passive: true };
 
-      testModule.addListener(
+      (testModule as any).addListener(
         mockTarget as any,
         "scroll",
         mockListener,
@@ -129,8 +129,8 @@ describe("BaseModule", () => {
       const mockListener1 = vi.fn();
       const mockListener2 = vi.fn();
 
-      testModule.addListener(mockTarget1 as any, "click", mockListener1);
-      testModule.addListener(mockTarget2 as any, "scroll", mockListener2);
+      (testModule as any).addListener(mockTarget1 as any, "click", mockListener1);
+      (testModule as any).addListener(mockTarget2 as any, "scroll", mockListener2);
 
       // Access private property through any type
       const privateProps = testModule as any;
@@ -153,8 +153,8 @@ describe("BaseModule", () => {
       const mockListener1 = vi.fn();
       const mockListener2 = vi.fn();
 
-      testModule.addListener(mockTarget1 as any, "click", mockListener1);
-      testModule.addListener(mockTarget2 as any, "scroll", mockListener2);
+      (testModule as any).addListener(mockTarget1 as any, "click", mockListener1);
+      (testModule as any).addListener(mockTarget2 as any, "scroll", mockListener2);
 
       testModule.destroy();
 
@@ -189,7 +189,7 @@ describe("BaseModule", () => {
       };
       const mockListener = vi.fn();
 
-      testModule.addListener(mockTarget as any, "click", mockListener);
+      (testModule as any).addListener(mockTarget as any, "click", mockListener);
 
       // Should not throw even if removeEventListener fails
       expect(() => testModule.destroy()).not.toThrow();
@@ -205,7 +205,7 @@ describe("BaseModule", () => {
       const mockListener = vi.fn();
 
       // Add listener
-      testModule.addListener(mockTarget as any, "click", mockListener);
+      (testModule as any).addListener(mockTarget as any, "click", mockListener);
 
       // Access private property through any type
       let privateProps = testModule as any;
@@ -232,11 +232,11 @@ describe("BaseModule", () => {
       const mockListener2 = vi.fn();
 
       // First cycle
-      testModule.addListener(mockTarget as any, "click", mockListener1);
+      (testModule as any).addListener(mockTarget as any, "click", mockListener1);
       testModule.destroy();
 
       // Second cycle
-      testModule.addListener(mockTarget as any, "scroll", mockListener2);
+      (testModule as any).addListener(mockTarget as any, "scroll", mockListener2);
 
       // Access private property through any type
       let privateProps = testModule as any;

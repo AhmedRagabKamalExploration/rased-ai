@@ -79,11 +79,14 @@ describe("PerformanceModule", () => {
     } as any;
 
     // Mock PerformanceObserver
-    global.PerformanceObserver = vi.fn().mockImplementation((callback) => ({
+    global.PerformanceObserver = vi.fn().mockImplementation((_callback) => ({
       observe: vi.fn(),
       disconnect: vi.fn(),
       takeRecords: vi.fn().mockReturnValue([]),
-    }));
+    })) as any;
+    
+    // Add supportedEntryTypes static property
+    (global.PerformanceObserver as any).supportedEntryTypes = ['navigation', 'resource'];
 
     performanceModule = new PerformanceModule();
   });
@@ -389,7 +392,7 @@ describe("PerformanceModule", () => {
     it("should handle observer creation errors gracefully", () => {
       global.PerformanceObserver = vi.fn().mockImplementation(() => {
         throw new Error("Observer creation failed");
-      });
+      }) as any;
 
       expect(() => performanceModule.init()).not.toThrow();
       // The error should be caught and logged as a warning

@@ -12,7 +12,7 @@ describe("TokenManager", () => {
       userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       platform: "Win32",
       language: "en-US",
-    };
+    } as Navigator;
 
     tokenManager = TokenManager.getInstance();
     tokenManager.reset();
@@ -75,7 +75,7 @@ describe("TokenManager", () => {
       const sessionDetails = "same-session";
 
       // Mock different UUIDs for each call
-      global.crypto.randomUUID
+      (global.crypto.randomUUID as any)
         .mockReturnValueOnce("uuid-1")
         .mockReturnValueOnce("uuid-2");
 
@@ -125,7 +125,7 @@ describe("TokenManager", () => {
       const id1 = tokenManager.getWebInstanceId();
 
       // Change navigator properties
-      global.navigator.userAgent = "Different User Agent";
+      (global.navigator as any).userAgent = "Different User Agent";
 
       const id2 = tokenManager.getWebInstanceId();
 

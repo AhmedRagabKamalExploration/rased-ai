@@ -218,7 +218,7 @@ describe("Collector", () => {
     });
 
     it("should start timer for periodic flushing", () => {
-      const flushSpy = vi.spyOn(collector as any, "flush");
+      vi.spyOn(collector as any, "flush");
 
       collector.start();
 
@@ -282,7 +282,7 @@ describe("Collector", () => {
     });
 
     it("should not flush when queue is empty", () => {
-      const flushSpy = vi.spyOn(collector as any, "flush");
+      vi.spyOn(collector as any, "flush");
 
       // Call flush directly when queue is empty
       (collector as any).flush();

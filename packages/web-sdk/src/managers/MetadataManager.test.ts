@@ -43,8 +43,8 @@ describe("MetadataManager", () => {
       ...global.window,
       location: {
         origin: "https://example.com",
-      },
-    };
+      } as Location,
+    } as any;
 
     // Mock console methods
     global.console = {

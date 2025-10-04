@@ -29,13 +29,13 @@ describe("ScreenModule", () => {
       devicePixelRatio: 2,
       innerHeight: 1080,
       innerWidth: 1920,
-    };
+    } as any;
 
     // Mock screen
     global.screen = {
       availHeight: 1040,
-      availLeft: 0,
-      availTop: 0,
+      availLeft: 0 as any,
+      availTop: 0 as any,
       availWidth: 1920,
       colorDepth: 24,
       height: 1080,
@@ -43,7 +43,7 @@ describe("ScreenModule", () => {
       width: 1920,
       left: 0,
       top: 0,
-    };
+    } as any;
 
     // Mock console methods
     global.console = {
@@ -270,7 +270,7 @@ describe("ScreenModule", () => {
         devicePixelRatio: 1.5,
         innerHeight: 768,
         innerWidth: 1024,
-      };
+      } as any;
 
       screenModule.init();
 

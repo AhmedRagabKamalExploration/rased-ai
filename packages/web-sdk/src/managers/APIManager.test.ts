@@ -50,7 +50,7 @@ describe("APIManager", () => {
   describe("initialize", () => {
     it("should successfully initialize and get session token", async () => {
       // Mock crypto.subtle.digest for this test
-      const mockDigest = vi.fn().mockImplementation(async (algorithm, data) => {
+      const mockDigest = vi.fn().mockImplementation(async (_algorithm, data) => {
         const text = new TextDecoder().decode(data);
         const hash = new Uint8Array(32);
         for (let i = 0; i < 32; i++) {
@@ -221,7 +221,7 @@ describe("APIManager", () => {
   describe("hash", () => {
     it("should test crypto mock directly", async () => {
       // Mock crypto.subtle.digest directly in this test
-      const mockDigest = vi.fn().mockImplementation(async (algorithm, data) => {
+      const mockDigest = vi.fn().mockImplementation(async (_algorithm, data) => {
         const text = new TextDecoder().decode(data);
         const hash = new Uint8Array(32);
         for (let i = 0; i < 32; i++) {
@@ -241,7 +241,7 @@ describe("APIManager", () => {
 
     it("should generate consistent hash for same input", async () => {
       // Mock crypto.subtle.digest for this test
-      const mockDigest = vi.fn().mockImplementation(async (algorithm, data) => {
+      const mockDigest = vi.fn().mockImplementation(async (_algorithm, data) => {
         const text = new TextDecoder().decode(data);
         const hash = new Uint8Array(32);
         for (let i = 0; i < 32; i++) {
@@ -268,7 +268,7 @@ describe("APIManager", () => {
 
     it("should generate different hashes for different inputs", async () => {
       // Mock crypto.subtle.digest for this test
-      const mockDigest = vi.fn().mockImplementation(async (algorithm, data) => {
+      const mockDigest = vi.fn().mockImplementation(async (_algorithm, data) => {
         const text = new TextDecoder().decode(data);
         const hash = new Uint8Array(32);
         for (let i = 0; i < 32; i++) {

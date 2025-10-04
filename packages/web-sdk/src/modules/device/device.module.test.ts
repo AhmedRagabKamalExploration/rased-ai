@@ -51,7 +51,7 @@ describe("DeviceModule", () => {
           }),
         }),
       }),
-    };
+    } as any;
 
     // Mock window.matchMedia
     global.window = {
@@ -157,7 +157,7 @@ describe("DeviceModule", () => {
     });
 
     it("should handle missing device memory", async () => {
-      global.navigator.deviceMemory = undefined;
+      (global.navigator as any).deviceMemory = undefined;
 
       // Access private method through any type
       const deviceData = await (deviceModule as any).getDeviceData();

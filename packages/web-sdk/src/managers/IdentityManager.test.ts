@@ -12,20 +12,20 @@ describe("IdentityManager", () => {
     mockIndexedDB = {
       open: vi.fn().mockImplementation(() => {
         const request = {
-          onupgradeneeded: null,
-          onsuccess: null,
-          onerror: null,
+          onupgradeneeded: null as any,
+          onsuccess: null as any,
+          onerror: null as any,
           result: {
             createObjectStore: vi.fn(),
             transaction: vi.fn().mockReturnValue({
               objectStore: vi.fn().mockReturnValue({
                 get: vi.fn().mockReturnValue({
-                  onsuccess: null,
+                  onsuccess: null as any,
                   result: null,
                 }),
                 put: vi.fn(),
               }),
-              oncomplete: null,
+              oncomplete: null as any,
             }),
           },
         };
@@ -63,7 +63,7 @@ describe("IdentityManager", () => {
           x: "test-x-coordinate",
           y: "test-y-coordinate",
         }),
-        digest: vi.fn().mockImplementation(async (algorithm, data) => {
+        digest: vi.fn().mockImplementation(async (_algorithm, data) => {
           const text = new TextDecoder().decode(data);
           const hash = Array.from(text)
             .map((char) => char.charCodeAt(0).toString(16).padStart(2, "0"))
@@ -72,7 +72,7 @@ describe("IdentityManager", () => {
             parseInt(hash.substr(i * 2, 2), 16)
           );
         }),
-      },
+      } as any,
     };
 
     identityManager = IdentityManager.getInstance();
