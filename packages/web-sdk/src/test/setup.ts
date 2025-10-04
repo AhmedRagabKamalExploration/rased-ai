@@ -159,7 +159,10 @@ global.PerformanceObserver = vi.fn().mockImplementation((_callback) => ({
 })) as any;
 
 // Add supportedEntryTypes static property
-(global.PerformanceObserver as any).supportedEntryTypes = ['navigation', 'resource'];
+(global.PerformanceObserver as any).supportedEntryTypes = [
+  "navigation",
+  "resource",
+];
 
 // Mock IndexedDB
 const mockIndexedDB = {
@@ -242,7 +245,10 @@ global.PerformanceObserver = vi.fn().mockImplementation((_callback) => ({
 })) as any;
 
 // Add supportedEntryTypes static property
-(global.PerformanceObserver as any).supportedEntryTypes = ['navigation', 'resource'];
+(global.PerformanceObserver as any).supportedEntryTypes = [
+  "navigation",
+  "resource",
+];
 
 // Mock console methods to avoid noise in tests
 global.console = {
@@ -251,3 +257,10 @@ global.console = {
   warn: vi.fn(),
   info: vi.fn(),
 } as any;
+
+// Mock crypto-js globally
+vi.mock("crypto-js", () => ({
+  SHA256: vi.fn().mockImplementation(() => ({
+    toString: vi.fn().mockReturnValue("mocked-hash-123456789"),
+  })),
+}));
